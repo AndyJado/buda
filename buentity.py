@@ -19,17 +19,6 @@ class DynaCards(str, Enum):
     SHELL: str= 'SECTION_SHELL'
     MAT1: str = 'MAT1 MAT_ELASTIC'
  
-
-class Node():
-    def __init__(self,deck:int,nid:int) -> None:
-        self.card = base.Entity(deck,nid,Meshes.NODE).card_fields(deck,True)
-    
-    def coord(self):
-        x:float = self.card.get('X')
-        y:float = self.card.get('Y')
-        z:float = self.card.get('Z')
-        return (x,y,z)
-
 # extract var to a undefined parameter
 def paramrize(deck: int,ent: base.Entity,field:str,name=None):
     cardic = ent.card_fields(deck,True)
