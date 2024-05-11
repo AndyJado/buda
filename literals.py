@@ -9,6 +9,7 @@ class Entities(str, Enum):
     SEGMENT: str = 'SEGMENT'
     PARAM: str = 'A_PARAMETER'
     CURVE: str='CURVE'
+    COORD: str = 'DEFINE_COORDINATE_SYSTEM'
 
 class Meshes(str, Enum):
     NODE: str = 'NODE'
