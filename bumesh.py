@@ -1,4 +1,4 @@
-from ansa import base, mesh
+from ansa import base, mesh,constants
 from . import buentity
 
 # should also create set, bolt qulity requires another tuning
@@ -21,4 +21,9 @@ def openhole(deck:int,point:tuple[float,float,float], diameter:float):
     
     hole = (point, props, params)
     mesh.ProjectOpenHole((hole,),'new_hole',True,True)    
+
+# refine elements to quad
+def refine_mesh(props):
+    shells = base.CollectEntities(constants.LSDYNA, props, "ELEMENT_SHELL", recursive=True)
+    mesh.RefineElements(shells, 0, 1, 0.0, 1, 0, "QUAD", 0, 0)
 
