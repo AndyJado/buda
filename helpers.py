@@ -27,8 +27,8 @@ class NewScript():
         elapse_time = end_time - self.start_time
         print(f"ELAPSE TIME:{elapse_time} S\n")
 
-# draw a rectangular
-def cre_quad(width, length):
+# draw a rectangular at x-y-0
+def draw_rec(width, length):
     node_x = (0, width, width, 0, 0)
     node_y = (0, 0, length, length, 0)
     curves = []
@@ -40,6 +40,22 @@ def cre_quad(width, length):
         curves.append(curve_id)
         
     return curves
+
+# draw circle at 
+def draw_circle(deck:int,r:float) -> list[base.Entity]:
+    origin=(0,0,0)
+    p1=(1,0,0)
+    p2=(0,1,0)
+    curves = base.CreateCircleCenter2PointsRadius(origin,p1,p2,r)
+    print(curves)
+    return [base.GetEntity(deck,literals.Entities.CURVE,id) for id in curves]
+    # base.CurvesConnectMulti(curves='all')
+
+def curve2plane(ents: list[base.Entity]) -> base.Entity:
+    planes = base.FacesNewPlanar(ents,ret_ents=True)
+    num = len(planes)
+    assert num ==1, "these curve makes {} planes!".format(num)
+    return planes[0]
 
 # extrude a curve
 def extrude(curves, height):
@@ -59,14 +75,8 @@ def one_prop(deck:int, news = None,):
     base.DeleteEntity(prop_old, True)
     base.PidToPart()
 
-def shell_mesh(deck:int,parts, target_element_length):
-    parts = parts or base.CollectEntities(deck, None, "SECTION_SHELL")
-    mesh.SetMeshParamTargetLength("absolute", target_element_length)
-
-    session = batchmesh.GetNewSession("new")
-    for part in parts:
-        batchmesh.AddPartToSession(part, session)
-        batchmesh.RunSession(session)
-    
+def shell_mesh(deck:int,faceshell:base.Entity):
+    mesh.SetMeshParamTargetLength("init_local", 1)
+    mesh.Mesh(faceshell)
 
     
