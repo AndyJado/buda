@@ -1,6 +1,6 @@
 from ansa import session,base,mesh,batchmesh,constants
 import os,platform,time
-import buentity
+import literals
 
 DECK= constants.LSDYNA
 
@@ -51,8 +51,8 @@ def extrude(curves, height):
 # one property assurance!
 def one_prop(deck:int, news = None,):
     news = news or {'Name':'default', 'T1': 3}
-    prop_old = base.CollectEntities(deck, None, buentity.GenEnts.PROPERTY)
-    prop_new = base.CreateEntity(deck, buentity.DynaCards.SHELL, news)
+    prop_old = base.CollectEntities(deck, None, literals.Entities.PROPERTY)
+    prop_new = base.CreateEntity(deck, literals.DynaCards.SHELL, news)
     for prop in prop_old:
         base.ReplaceProperty(prop, prop_new)
         

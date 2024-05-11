@@ -1,10 +1,10 @@
 from ansa import base, mesh,constants
-from . import buentity
+from literals import Entities
 
 # should also create set, bolt qulity requires another tuning
 def openhole(deck:int,point:tuple[float,float,float], diameter:float):
     point = point
-    props = base.CollectEntitiesI(deck,None,buentity.GenEnts.PROPERTY)
+    props = base.CollectEntitiesI(deck,None,Entities.PROPERTY)
     params_dict = {
         'zone_num': 0,
         'proj_tolerance': 12.0,
