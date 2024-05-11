@@ -23,7 +23,7 @@ def openhole(deck:int,point:tuple[float,float,float], diameter:float):
     mesh.ProjectOpenHole((hole,),'new_hole',True,True)    
 
 # refine elements to quad
-def refine_mesh(props):
+def quad_remesh(props):
     shells = base.CollectEntities(constants.LSDYNA, props, "ELEMENT_SHELL", recursive=True)
     mesh.RefineElements(shells, 0, 1, 0.0, 1, 0, "QUAD", 0, 0)
 

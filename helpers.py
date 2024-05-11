@@ -75,7 +75,7 @@ def one_prop(deck:int, news = None,):
     base.DeleteEntity(prop_old, True)
     base.PidToPart()
 
-def shell_mesh(deck:int,faceshell:base.Entity):
+def shell_mesh_local(deck:int,faceshell:base.Entity):
     mesh.SetMeshParamTargetLength("init_local", 1)
     mesh.Mesh(faceshell)
 
