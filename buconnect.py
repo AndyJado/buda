@@ -6,7 +6,7 @@ class BoltBuilder():
 
     BOLT_CFG: dict=None
 
-    # should have holes by now
+    # 
     def __init__(self,deck:int) -> None:
         self.deck = deck
         globe = base.CollectEntities(deck,None,DynaCards.SHELL)
@@ -21,6 +21,8 @@ class BoltBuilder():
             parts_proximity_for_connection_merging=100,
             match_hole_params='any'
         )
+        cns = len(self.cnctns)
+        assert cns >= 1, "there is {cns} holes!".format(cns)
     
     def solid_bolt(self,d:float,len:float):
         self.BOLT_CFG = {
