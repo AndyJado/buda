@@ -1,5 +1,7 @@
 **.dmp
+**.log
 **.ansa
 **/__pycache__/
 asset
 dirty
+live.py
