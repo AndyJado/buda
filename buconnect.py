@@ -23,22 +23,18 @@ class BoltBuilder():
     
     def solid_bolt(self,d:float,len:float):
         self.BOLT_CFG = {
-        "FE Rep Type": "SOLID BOLT",    # bolt type
-        "Length": len,    # length of bolt
-        "D": d,   # diameter of bolt
-        
+        "FE Rep Type": "SOLID BOLT",  
+        "Length": len,  
+        "D": d, 
         "Search Dist": 100,
         "Search From": -100,
         "Search To": 100,
         "Search For Holes": "yes",
         "Respect PID Thickness": "yes",
-        
         "Bolt Length": 1.8,
-        
         "Head Diameter": 1.5,
         "Head Diameter Mult": "*Diam",
         "Head Height": 10,
-        
         "Create Nut": "yes",
         "Pasted to Thread": "no",
         # "Create Pretension": "yes",
@@ -47,16 +43,15 @@ class BoltBuilder():
         }
     
     def apply(self):
-        print(self.BOLT_CFG)
         [cnct.set_entity_values(self.deck,self.BOLT_CFG,debug=constants.REPORT_ALL) for cnct in self.cnctns]
-        print(self.cnctns[0].card_fields(self.deck,True))
         connections.ReApplyConnections(self.cnctns)
 
-#! FIXME: works only with dyna
+#! FIXME: works only with dyna! get nd position!
 def dp(nid:int)->tuple[float,float,float]:
     nd = base.GetEntity(constants.LSDYNA,Meshes.NODE,nid)
     return nd.position
 
+#! FIXME: create coord sys from 3 node 
 def cre_coord_sys_3node(deck:int,nid_o:int,nid_x:int,nid_y:int) -> base.Entity:
     coord_orig = dp(nid_o)
     coord_x = dp(nid_x)

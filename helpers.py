@@ -2,8 +2,6 @@ from ansa import session,base,mesh,batchmesh,constants
 import os,platform,time
 import literals
 
-DECK= constants.LSDYNA
-
 class NewScript():
 
     def __init__(self,deck:int):
