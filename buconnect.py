@@ -6,6 +6,7 @@ class BoltBuilder():
 
     BOLT_CFG: dict=None
 
+    # should have holes by now
     def __init__(self,deck:int) -> None:
         self.deck = deck
         globe = base.CollectEntities(deck,None,DynaCards.SHELL)
@@ -72,8 +73,8 @@ def cre_coord_sys_3node(deck:int,nid_o:int,nid_x:int,nid_y:int) -> base.Entity:
     
     return base.CreateEntity(deck, Entities.COORD, fields)
 
-def local_translate(type:str,cid:int,dx,dy,dz,ents:list[base.Entity]):
-    x,y,z= calc.LocalToGlobal(cid,[dx,dy,dz],'vector')
+def local_translate(type:str,cid:int,vec:list[float,float,float],ents:list[base.Entity]):
+    x,y,z= calc.LocalToGlobal(cid,vec,'vector')
     base.GeoTranslate(
     type,
     'AUTO_OFFSET',
