@@ -11,6 +11,7 @@ class Entities(str, Enum):
     PARAM: str = 'A_PARAMETER'
     CURVE: str='CURVE'
     COORD: str = 'DEFINE_COORDINATE_SYSTEM'
+    INCLUDE: str = 'INCLUDE'
 
 class Meshes(str, Enum):
     NODE: str = 'NODE'
