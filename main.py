@@ -10,25 +10,14 @@ if __name__ == "__main__":
     #-----------------------------------
     rail_path = r'asset/4m-model.key'
     spacer_path =r'asset/spacer.key'
-    rail = plugs.Eve(rail_path)
-    spacer = plugs.Eve(spacer_path)
-
-    logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
-    hdl = logging.StreamHandler()
-
-    hdl.setStream(sys.stdout)
-    hdl.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    hdl.setFormatter(formatter)
-
-    logging.debug('duh')
-   
-    # duh = rail._parse_css_name()
-    print(rail.mcss)
+    rail = plugs.Eve(DECK,rail_path)
+    spacer = plugs.Eve(DECK,spacer_path)
+    ballar = plugs.Eve(DECK,'asset/stand.key')
+ 
+    asb = plugs.Assemblr(DECK,[rail,spacer,ballar]) 
+    # duh = asb._possibles()
+    duh = asb.final()
+    print('duh:',duh)
 
     #-----------------------------------
     time.end()

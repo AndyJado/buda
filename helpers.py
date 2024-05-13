@@ -15,8 +15,6 @@ class NewScript():
         print('CWD:',cwd,'\n\n')
 
         self.start_time = time.time()
-        print('STARTING AT TIME:',self.start_time,'\n\n')
-
         os.chdir(cwd)
         session.New("discard")
         base.SetCurrentDeck(deck)    
