@@ -1,5 +1,5 @@
 from ansa import session,base,mesh,batchmesh,constants
-import os,platform,time
+import os,platform,time,logging
 import literals
 
 class NewScript():
@@ -11,11 +11,12 @@ class NewScript():
         else:
             os.system('clear') 
 
+        cwd = os.path.dirname(__file__)
+        print('CWD:',cwd,'\n\n')
+
         self.start_time = time.time()
         print('STARTING AT TIME:',self.start_time,'\n\n')
 
-        cwd = os.path.dirname(__file__)
-        print('CWD:',cwd,'\n\n')
         os.chdir(cwd)
         session.New("discard")
         base.SetCurrentDeck(deck)    

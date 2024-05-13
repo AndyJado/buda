@@ -1,6 +1,7 @@
 from typing import Callable
 from ansa import base,constants
-import literals
+from literals import Entities
+import logging
 
 def unplug_meshes(deck:int):
     nodes = base.CollectEntitiesI(deck,None,"NODE") # ELEMENT will delete parts!
@@ -19,15 +20,34 @@ class Eve():
     def __init__(self,path:str) -> None:
         self.deck = constants.LSDYNA
         inclu = base.InputLSDyna(path,header='overwrite',new_include='on',create_parameters='on')
-        ## coordinate systems 
+        
         self.inclu = inclu
-        # self.CSS = base.CollectEntities(self.deck,inclu,literals.Entities.COORD)
-        self.CSS = self.get(literals.Entities.COORD)
-        self.SETS = base.CollectEntities(self.deck,inclu,literals.Entities.SET)
-        self.PART = base.CollectEntities(self.deck,inclu,literals.Entities.PROPERTY)
+        ## coordinate systems 
+        self.scs,self.mcss = self._parse_css_name()
+
+        self.SETS = self.get(Entities.SET)
+        self.PART = self.get(Entities.PROPERTY)
     
     def get(self,ty:str):
         return base.CollectEntities(self.deck,self.inclu,ty)
     
-    def _parse_css_name():
-        pass
+    # parse INCLUDE, return master and slave cs
+    def _parse_css_name(self):
+        mcss = []
+        scs: base.Entity = None
+        CSs = self.get(Entities.COORD)
+        # return [cs._name for cs in CSs]
+        for cs in CSs:
+            assert len(cs._name) > 0, "cs name empty!"
+            name_vec = cs._name.split(' ')
+            if name_vec[0] == 'S':
+                scs = cs
+            elif name_vec[0] == 'M':
+                mcss.append(cs)
+            else:
+                logging.debug(CSs)
+        
+        return scs,mcss
+
+
+
