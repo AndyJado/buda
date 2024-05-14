@@ -9,9 +9,6 @@ if __name__ == "__main__":
     time = NewScript(DECK)
 
     plate = a_plate_mesh(DECK)
-    
-    # no,nx,ny = (228,205,152)
-    # o2,x2,y2 = (9,10,11) 
 
     nodes_all = set(base.CollectEntities(DECK,None,literals.Meshes.NODE))
 
@@ -20,7 +17,7 @@ if __name__ == "__main__":
     x,y,z = f()
     cys = buconnect.cre_coord_sys_3node(DECK,x,y,z)
     x1,y1,z1 = f()
-    cys_m = buconnect.cre_coord_sys_3node(DECK,x,y,z)
+    cys_m = buconnect.cre_coord_sys_3node(DECK,x1,y1,z1)
 
     inclu = bubase.ents_new_inclu(DECK,[plate,cys])
     inclu2 = bubase.ents_new_inclu(DECK,[cys_m])
