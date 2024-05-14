@@ -6,7 +6,7 @@ class BoltBuilder():
 
     BOLT_CFG: dict=None
 
-    # 
+    # FIXME: must have holes at this point
     def __init__(self,deck:int) -> None:
         self.deck = deck
         globe = base.CollectEntities(deck,None,DynaCards.SHELL)

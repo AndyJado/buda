@@ -19,16 +19,11 @@ def paramlater(deck:int, ent: base.Entity, field:str,name:str):
 ## right hand rule for coordinate sys everywhere
 ##
 class Eve():
-    def __init__(self,deck:int,path:str) -> None:
+    def __init__(self,deck:int,inclu:base.Entity) -> None:
         self.deck = deck
-        inclu = base.InputLSDyna(path,header='overwrite',new_include='on',create_parameters='on')
-        
         self.INCLU = inclu
         ## coordinate systems 
         self.scs,self.mcss = self._parse_css_name()
-
-        self.SETS = self._get(Entities.SET)
-        self.PART = self._get(Entities.PROPERTY)
     
     def _get(self,ty:str):
         return base.CollectEntities(self.deck,self.INCLU,ty)
@@ -47,10 +42,11 @@ class Eve():
             elif name_vec[0] == 'M':
                 mcss.append(cs)
             else:
-                print('{} is unregulated cs!'.format(cs._name))
+                print('coordinate system {} name should start with M or S !'.format(cs._name))
         
         return scs,mcss
 
+## FIXME: to test possibles !==1
 class Assemblr():
 
     CHAINS:list[list[base.Entity]] = []
@@ -77,8 +73,10 @@ class Assemblr():
         self.S = slaves
 
     def final(self):
-        possi = self._possibles()
-        assert possi ==1, "not final,{} possibles remain".format(possi)
+
+        possi = len(self.CHAINS) 
+
+        assert possi == 1, "CANNOT FINAL! {} possibles remains!".format(self.CHAINS)
 
         css_stack = self.CHAINS[0]
 
@@ -93,25 +91,28 @@ class Assemblr():
             align_by_matrix(self.deck,to_tran,css_stack.pop(),css_stack.pop())
    
     ## l1,l2 -- r1,r2
-    def _possibles(self) -> int:
+    def possibles(self) -> int:
         m = len(self.M)
         mm = len(self.MM)
         ms = len(self.MS)
         s = len(self.S)
 
-        if m == mm == ms == s == 1:
-            self.CHAINS.append([self.M[0],self.MS[0],self.MM[0],self.S[0]])
+        if mm == ms == 0 and m == s == 1:
+            self.CHAINS=[[self.M[0],self.S[0]]]
             return 1
 
-        l1 = m - mm
-        assert l1 >= 0, "{}<{}".format(m,mm)
-        r1 = ms + l1      
+        if m == mm == ms == s == 1:
+            self.CHAINS=[[self.M[0],self.MS[0],self.MM[0],self.S[0]]]
+            return 1
+        
+        l1_remain = m - mm
+        assert l1_remain >= 0, "{}<{}".format(m,mm)
+        r1 = ms + l1_remain      
         assert r1 == s, "{}!={}".format(r1,s)
 
-        return _permutations(l1,l1)*_permutations(s,s)
+        return _permutations(l1_remain,l1_remain)*_permutations(s,s)
 
         
-
 # 计算排列数 P(n, k)
 def _permutations(n, k):
     return math.factorial(n) // math.factorial(n - k)

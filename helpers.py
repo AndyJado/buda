@@ -44,7 +44,6 @@ def draw_circle(deck:int,r:float) -> list[base.Entity]:
     p1=(1,0,0)
     p2=(0,1,0)
     curves = base.CreateCircleCenter2PointsRadius(origin,p1,p2,r)
-    print(curves)
     return [base.GetEntity(deck,literals.Entities.CURVE,id) for id in curves]
     # base.CurvesConnectMulti(curves='all')
 
@@ -76,4 +75,11 @@ def shell_mesh_local(deck:int,faceshell:base.Entity):
     mesh.SetMeshParamTargetLength("init_local", 1)
     mesh.Mesh(faceshell)
 
-    
+def a_plate_mesh(deck:int) -> base.Entity:
+    curvs = draw_circle(deck,200)
+    face = curve2plane(curvs)
+    refs = base.ReferenceEntities(face,True)
+    shell_mesh_local(deck,face)
+    one_prop(deck,None)
+    return base.GetEntity(deck,literals.Entities.PROPERTY,2) # idk but it's 2
+   

@@ -4,18 +4,12 @@ import buconnect,bumesh
 
 DECK = ansa.constants.LSDYNA
 
-def a_plate_mesh() -> base.Entity:
-    curvs = draw_circle(DECK,200)
-    face = curve2plane(curvs)
-    refs = base.ReferenceEntities(face,True)
-    shell_mesh_local(DECK,face)
-    one_prop(DECK,None)
-    return base.GetEntity(DECK,literals.Entities.PART,2) # 1 is the curves
 
 if __name__ == "__main__":
     time = NewScript(DECK)
 
-    plate = a_plate_mesh()
+    plate = a_plate_mesh(DECK)
+    print(plate.ansa_type(DECK))
 
     no,nx,ny = (228,205,152)
     cys = buconnect.cre_coord_sys_3node(DECK,no,nx,ny)
