@@ -18,22 +18,12 @@ def paramlater(deck:int, ent: base.Entity, field:str,name:str):
 
 ## right hand rule for coordinate sys everywhere
 ##
-class Eve():
+class _Eve():
     def __init__(self,deck:int,inclu:base.Entity) -> None:
-        self.deck = deck
-        self.INCLU = inclu
         ## coordinate systems 
-        self.scs,self.mcss = self._parse_css_name()
-    
-    def _get(self,ty:str):
-        return base.CollectEntities(self.deck,self.INCLU,ty)
-    
-    # parse INCLUDE, return master and slave cs
-    def _parse_css_name(self):
         mcss: list[base.Entity] = []
         scs: base.Entity = None
-        CSs = self._get(Entities.COORD)
-        # return [cs._name for cs in CSs]
+        CSs = base.CollectEntities(deck,inclu,Entities.COORD)
         for cs in CSs:
             assert len(cs._name) > 0, "cs name empty!"
             name_vec = cs._name.split(' ')
@@ -43,21 +33,23 @@ class Eve():
                 mcss.append(cs)
             else:
                 print('coordinate system {} name should start with M or S !'.format(cs._name))
-        
-        return scs,mcss
-
+       
+        self.scs,self.mcss = scs, mcss
+    
 ## FIXME: to test possibles !==1
 class Assemblr():
 
     CHAINS:list[list[base.Entity]] = []
 
-
-    def __init__(self,deck:int,members:list[Eve]) -> None:
+    def __init__(self,deck:int,inclus:list[base.Entity]) -> None:
+        members = [_Eve(deck,i) for i in inclus]
+ 
         self.deck = deck
         masters:list[base.Entity] = []
         mid_m:list[base.Entity] = []
         mid_s:list[base.Entity] = []
         slaves:list[base.Entity] = []
+        
         for ev in members:
             if ev.scs is None:
                 for cs in ev.mcss:
@@ -67,6 +59,7 @@ class Assemblr():
             else:
                 mid_m.extend(ev.mcss)
                 mid_s.append(ev.scs)
+
         self.M = masters
         self.MM = mid_m
         self.MS = mid_s

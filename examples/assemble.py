@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     base.SetEntityCardValues(DECK,cys_m,{'Name':'M'})
 
-    asb = plugs.Assemblr(DECK,[plugs.Eve(DECK,inclu),plugs.Eve(DECK,inclu2)])
+    asb = plugs.Assemblr(DECK,[inclu,inclu2])
 
     duh = asb.possibles()
     print(duh)
