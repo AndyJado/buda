@@ -10,10 +10,17 @@ if __name__ == "__main__":
 
     plate = a_plate_mesh(DECK)
     
-    no,nx,ny = (228,205,152)
-    o2,x2,y2 = (9,10,11) 
-    cys = buconnect.cre_coord_sys_3node(DECK,no,nx,ny)
-    cys_m = buconnect.cre_coord_sys_3node(DECK,o2,x2,y2)
+    # no,nx,ny = (228,205,152)
+    # o2,x2,y2 = (9,10,11) 
+
+    nodes_all = set(base.CollectEntities(DECK,None,literals.Meshes.NODE))
+
+    f = lambda: (nodes_all.pop()._id for _ in range(3))
+
+    x,y,z = f()
+    cys = buconnect.cre_coord_sys_3node(DECK,x,y,z)
+    x1,y1,z1 = f()
+    cys_m = buconnect.cre_coord_sys_3node(DECK,x,y,z)
 
     inclu = bubase.ents_new_inclu(DECK,[plate,cys])
     inclu2 = bubase.ents_new_inclu(DECK,[cys_m])
