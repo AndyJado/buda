@@ -2,12 +2,15 @@ from ansa import base,constants
 from literals import Entities,Meshes
 
 ## one property, one include.
-def dyna_part_a_include(fpath:str) -> base.Entity:
-    inclu = base.InputLSDyna(fpath,header="overwrite",new_include="on",create_parameters="on")
-    ppts_inclu = base.CollectEntities(constants.LSDYNA,inclu,Entities.PROPERTY,recursive=True)
-    num_part = len(ppts_inclu)
-    assert num_part == 1, "one include now has {} part!".format(num_part)
-    return ppts_inclu[0]
+def dyna_a_include(fpath:str) -> base.Entity:
+    return  base.InputLSDyna(fpath,header="overwrite",new_include="on",create_parameters="on")
+
+def ents_new_inclu(deck:int,ents:list[base.Entity]) -> base.Entity:
+    inclu = base.CreateInactiveInclude('','',deck)
+    base.LoadInclude(inclu)
+    base.AddToInclude(inclu,ents)
+    # base.SetEntityCardValues(DECK,inclu,{'Output Path': 'duh'})
+    return inclu
 
 def reveal_unrecogonized_ents(deck:int) -> list[str]:
     ents = base.CollectEntitiesI(deck,None,'__ALL_ENTITIES__')
