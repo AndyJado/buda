@@ -21,8 +21,8 @@ if __name__ == "__main__":
 
     d_hole = 30.0
 
-    buconnect.local_translate('COPY',cys._id,[20,30,20],[plate])
-    buconnect.local_translate('COPY',cys._id,[20,0,10],[plate])
+    buconnect.move_along_cs('COPY',cys._id,[20,30,20],[plate])
+    buconnect.move_along_cs('COPY',cys._id,[20,0,10],[plate])
 
     bumesh.openhole(DECK,ori,d_hole)
     

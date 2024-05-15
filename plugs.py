@@ -18,12 +18,13 @@ def paramlater(deck:int, ent: base.Entity, field:str,name:str):
 
 ## right hand rule for coordinate sys everywhere
 ##
-class _Eve():
+class Eve():
     def __init__(self,deck:int,inclu:base.Entity) -> None:
         ## coordinate systems 
         mcss: list[base.Entity] = []
         scs: base.Entity = None
-        CSs = base.CollectEntities(deck,inclu,Entities.COORD)
+        CSs = base.CollectEntities(deck,inclu,Entities.COORD,recursive=True)
+        assert len(CSs) != 0, "no cs in include!"
         for cs in CSs:
             assert len(cs._name) > 0, "cs name empty!"
             name_vec = cs._name.split(' ')
@@ -41,8 +42,7 @@ class Assemblr():
 
     CHAINS:list[list[base.Entity]] = []
 
-    def __init__(self,deck:int,inclus:list[base.Entity]) -> None:
-        members = [_Eve(deck,i) for i in inclus]
+    def __init__(self,deck:int,members:Iterable[Eve]) -> None:
  
         self.deck = deck
         masters:list[base.Entity] = []

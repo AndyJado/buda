@@ -75,17 +75,28 @@ def cre_coord_sys_3node(deck:int,nid_o:int,nid_x:int,nid_y:int) -> base.Entity:
     
     return base.CreateEntity(deck, Entities.COORD, fields)
 
-def local_translate(type:str,cid:int,vec:list[float,float,float],ents:list[base.Entity]):
+def copy_along_cs(cid:int,vec:list[float,float,float],ents:list[base.Entity]):
     x,y,z= calc.LocalToGlobal(cid,vec,'vector')
     base.GeoTranslate(
-    type,
+    'COPY',
     'AUTO_OFFSET',
-    "SAME PART",
-    "NONE",
+    "SAME PART", # same ansa group
+    "EXPAND", # set will simply move with
     x,
     y,
     z,
     ents,
-    keep_connectivity=True,
-    draw_results=False,
+    )
+
+def move_along_cs(cid:int,vec:list[float,float,float],ents:list[base.Entity]):
+    x,y,z= calc.LocalToGlobal(cid,vec,'vector')
+    base.GeoTranslate(
+    'MOVE',
+    'AUTO_OFFSET',
+    "SAME PART",
+    "NONE", # set will simply move with
+    x,
+    y,
+    z,
+    ents,
     )

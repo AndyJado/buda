@@ -10,6 +10,7 @@ class Entities(str, Enum):
     SEGMENT: str = 'SEGMENT'
     PARAM: str = 'A_PARAMETER'
     CURVE: str='CURVE'
+    # FIXME: there are other CS type beyond SYSTEM, can change though
     COORD: str = 'DEFINE_COORDINATE_SYSTEM'
     INCLUDE: str = 'INCLUDE'
 
