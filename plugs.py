@@ -83,27 +83,7 @@ class Assemblr():
             to_tran.append(ppts.pop())
             align_by_matrix(self.deck,to_tran,css_stack.pop(),css_stack.pop())
    
-    ## l1,l2 -- r1,r2
-    def possibles(self) -> int:
-        m = len(self.M)
-        mm = len(self.MM)
-        ms = len(self.MS)
-        s = len(self.S)
 
-        if mm == ms == 0 and m == s == 1:
-            self.CHAINS=[[self.M[0],self.S[0]]]
-            return 1
-
-        if m == mm == ms == s == 1:
-            self.CHAINS=[[self.M[0],self.MS[0],self.MM[0],self.S[0]]]
-            return 1
-        
-        l1_remain = m - mm
-        assert l1_remain >= 0, "{}<{}".format(m,mm)
-        r1 = ms + l1_remain      
-        assert r1 == s, "{}!={}".format(r1,s)
-
-        return _permutations(l1_remain,l1_remain)*_permutations(s,s)
 
         
 # 计算排列数 P(n, k)
