@@ -1,6 +1,7 @@
-import math
+from enum import Enum
+import math,itertools
 import numpy as np
-from typing import Callable
+from typing import Callable, Iterable
 from ansa import base,constants,calc
 from literals import Entities
 import logging
@@ -15,56 +16,120 @@ def paramlater(deck:int, ent: base.Entity, field:str,name:str):
     param = base.CreateEntity(deck,"A_PARAMETER", {'Name':name})
     return ent.set_entity_values(deck,{field: '='+name})
 
+class Layer():
+    def __init__(self,d:int) -> None:
+        self.depth = d
+        self.scs: base.Entity = None
+        self.mcss: list[base.Entity] = []
+    
+    def slave_cs(self,cs: base.Entity):
+        assert self.scs is None, "scs is not None in this layer!"
+        self.scs = cs
+    
+    def ty(self):
+        if self.scs is None and len(self.mcss) == 0:
+            return None
+
+        if self.scs is None:
+            return Layer.Ty.M
+        elif len(self.mcss) == 0:
+            return Layer.Ty.S
+        else:
+            return Layer.Ty.I
+    
+    def __str__(self):
+        # res = 'depth:{}\nscs:{}\nmcss_:{}\n'.format(self.depth,self.scs,len(self.mcss))
+        return str(self.ty())
+    
+    class Ty(int,Enum):
+        M = 0 # master
+        I = 1 # intermidiate
+        S = 2 # slave
+
+    # def ms_append(self,)
 
 ## right hand rule for coordinate sys everywhere
-##
+## FIXME: now it simply parse a inclu
 class Eve():
+
+    cs_ty = Entities.COORD
+
     def __init__(self,deck:int,inclu:base.Entity) -> None:
-        ## coordinate systems 
-        mcss: list[base.Entity] = []
-        scs: base.Entity = None
-        CSs = base.CollectEntities(deck,inclu,Entities.COORD,recursive=True)
-        assert len(CSs) != 0, "no cs in include!"
+        self.lyrs: list[Layer] = []
+
+        CSs = base.CollectEntities(deck,inclu,self.cs_ty) #FIXME: there are other COORD lterals!
+        assert len(CSs) >= 0, "no cs in include!"
         for cs in CSs:
             assert len(cs._name) > 0, "cs name empty!"
-            name_vec = cs._name.split(' ')
+            dpth = self._parse_depth(cs._name)
+            cur_lyr = self._cre_layer_if_none(dpth)
+            # print(cur_lyr)
+            peeled = self._remove_leading_parentheses(cs._name) 
+            name_vec = peeled.split(' ')
             if name_vec[0] == 'S':
-                scs = cs
+                cur_lyr.slave_cs(cs)
             elif name_vec[0] == 'M':
-                mcss.append(cs)
+                cur_lyr.mcss.append(cs)
             else:
                 print('coordinate system {} name should start with M or S !'.format(cs._name))
-       
-        self.scs,self.mcss = scs, mcss
+            # if cur_lyr.ty() == None:
+            #     self.lyrs.pop()
+
+    def _remove_leading_parentheses(self,s):
+        while s and s[0] == '(':
+            s = s[1:]
+        return s
+
+    def _cre_layer_if_none(self,d:int):
+        lyrs = [l for l in self.lyrs if l.depth == d]
+        if len(lyrs) == 0:
+            lyr = Layer(d)
+            self.lyrs.append(lyr)
+            return self.lyrs[0]
+        elif len(lyrs) == 1:
+            return self.lyrs[0]
+        else:
+            print('ERROR')
+            assert "1 depth 1 Layer!"
+    
+    def _parse_depth(self, s: str)-> int:
+        count = 0
+        for char in s:
+            if char == '(':
+                count += 1
+            else:
+                break
+        return count
+
+
     
 ## FIXME: to test possibles !==1
 class Assemblr():
 
-    CHAINS:list[list[base.Entity]] = []
-
     def __init__(self,deck:int,members:Iterable[Eve]) -> None:
- 
+
+        self.CHAINS:list[list[base.Entity]] = []
+        # {depth : [layer]}
+        self.layers: dict[int,list[Layer]] = {}
         self.deck = deck
-        masters:list[base.Entity] = []
-        mid_m:list[base.Entity] = []
-        mid_s:list[base.Entity] = []
-        slaves:list[base.Entity] = []
-        
-        for ev in members:
-            if ev.scs is None:
-                for cs in ev.mcss:
-                    masters.append(cs)
-            elif len(ev.mcss) == 0:
-                slaves.append(ev.scs)
-            else:
-                mid_m.extend(ev.mcss)
-                mid_s.append(ev.scs)
 
-        self.M = masters
-        self.MM = mid_m
-        self.MS = mid_s
-        self.S = slaves
+        lyrs = [i for e in members for i in e.lyrs]
 
+        for lyr in lyrs:
+            d = lyr.depth
+            if d not in self.layers:
+                self.layers[d] = []
+            cur = self.layers[d]
+            cur.append(lyr)
+    
+    def __str__(self) -> str:
+        return "{}".format([ "{}:{}".format(i,[l.__str__() for l in lyrs]) for (i,lyrs) in self.layers.items()])
+    
+    def recurr(self):
+        cur_depth = min(self.layers.keys())
+        cur = self.layers[cur_depth]
+        return [ly.ty() for ly in cur]
+       
     def final(self):
 
         possi = len(self.CHAINS) 
@@ -83,12 +148,10 @@ class Assemblr():
             to_tran.append(ppts.pop())
             align_by_matrix(self.deck,to_tran,css_stack.pop(),css_stack.pop())
    
+    def mm_from_ms(ms:base.Entity):
+        inclu = base.GetEntityInclude(ms)
+        base.CollectEntities()
 
-
-        
-# 计算排列数 P(n, k)
-def _permutations(n, k):
-    return math.factorial(n) // math.factorial(n - k)
 
 def array_matrix(deck, coord:base.Entity):
     matrix = calc.GetCoordTransformMatrix4x3(deck, coord, 0,0,0)
@@ -127,4 +190,32 @@ def align_by_matrix(deck, slave_ent:list[base.Entity], slave_coord:base.Entity, 
     )
 
 
+
+# M = ['a','b'] # M
+# MS = ['d','e'] # MS
+# MM = ['h','i','j'] #MM should be determined by MS
+# S = ['m','n'] # S
+def possi(M:list,mS:list,mM:list,S:list):
+    empty1 = len(M)-len(mS)
+    empty2 = len(M) + len(mM) - len(mS) - len(S)
+
+    assert empty2 >= 0 and empty1 >=0, "impossible!"
+
+    for _ in range(0,empty1):
+        mS.append(None)
+
+    for _ in range(0,empty2):
+        S.append(None)
+
+    duh1 = set(itertools.permutations(mS))
+    duh2 = set(itertools.permutations(S))
+
+
+    res = []
+    for i in duh1:
+        for j in duh2:
+            res.append([i,j])
+            print([i,j],'\n\n')
+
+    print(len(duh1),len(duh2))
 

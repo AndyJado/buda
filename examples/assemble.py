@@ -12,25 +12,17 @@ if __name__ == "__main__":
 
     nodes_all = set(base.CollectEntities(DECK,None,literals.Meshes.NODE))
 
-    f = lambda: (nodes_all.pop()._id for _ in range(3))
+    graph:list[Iterable[str]] = [['(M','M'],['S'],['(S','(M','((M'],['((S']]
 
-    x,y,z = f()
-    cys = buconnect.cre_coord_sys_3node(DECK,x,y,z)
-    x1,y1,z1 = f()
-    cys_m = buconnect.cre_coord_sys_3node(DECK,x1,y1,z1)
+    inclus = [random_cs_a_inclu(DECK,nodes_all,i) for i in graph]
 
-    inclu = bubase.ents_new_inclu(DECK,[plate,cys])
-    inclu2 = bubase.ents_new_inclu(DECK,[cys_m])
+    eves = [plugs.Eve(DECK,i) for i in inclus]
 
-    base.SetEntityCardValues(DECK,cys,{'Name':'S'})
+    asb = plugs.Assemblr(DECK,eves)
 
-    base.SetEntityCardValues(DECK,cys_m,{'Name':'M'})
+    # duh = asb.recurr()
+    # print(duh)
 
-    asb = plugs.Assemblr(DECK,[plugs.Eve(DECK,i) for i in [inclu,inclu2]])
-
-    duh = asb.possibles()
-    print(duh)
-
-    asb.final()
+    print(asb)
 
     time.end()

@@ -1,6 +1,7 @@
+from typing import Iterable
 from ansa import session,base,mesh,batchmesh,constants
 import os,platform,time,logging
-import literals
+import literals,buconnect,bubase
 
 class NewScript():
 
@@ -83,3 +84,14 @@ def a_plate_mesh(deck:int) -> base.Entity:
     one_prop(deck,None)
     return base.GetEntity(deck,literals.Entities.PROPERTY,2) # idk but it's 2
    
+def random_cs_a_inclu(deck:int, nodes: Iterable[base.Entity],cs_name:Iterable[str]):
+    f = lambda: (nodes.pop()._id for _ in range(3))
+    css = []
+
+    for name in cs_name:
+        x,y,z = f()
+        cys = buconnect.cre_coord_sys_3node(deck,x,y,z)
+        base.SetEntityCardValues(deck,cys,{'Name':name})
+        css.append(cys)
+
+    return bubase.ents_new_inclu(deck,css)

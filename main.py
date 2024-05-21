@@ -1,8 +1,5 @@
-import ansa,logging,sys
+import ansa,logging,sys,gc
 import buconnect,bumesh,helpers,bubase,plugs
-
-
-
 
 if __name__ == "__main__":
     DECK = ansa.constants.LSDYNA
@@ -10,14 +7,17 @@ if __name__ == "__main__":
     #-----------------------------------
     rail_path = r'asset/4m-model.key'
     spacer_path =r'asset/spacer.key'
-    rail = plugs.Eve(DECK,rail_path)
-    spacer = plugs.Eve(DECK,spacer_path)
-    ballar = plugs.Eve(DECK,'asset/stand.key')
+    ballar_path ='asset/stand.key'
+
+    fps = [rail_path,spacer_path,ballar_path]
+
+    inclus = [bubase.dyna_a_include(p) for p in fps]
  
-    asb = plugs.Assemblr(DECK,[rail,spacer,ballar]) 
-    # duh = asb._possibles()
-    duh = asb.final()
-    print('duh:',duh)
+    asb = plugs.Assemblr(DECK,inclus) 
+   
+    duh = asb.possibles()
+    print('remain possibles:',duh)
+    asb.final()
 
     #-----------------------------------
     time.end()

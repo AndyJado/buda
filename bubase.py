@@ -1,3 +1,4 @@
+from typing import Iterable
 from ansa import base,constants
 from literals import Entities,Meshes
 
@@ -5,7 +6,7 @@ from literals import Entities,Meshes
 def dyna_a_include(fpath:str) -> base.Entity:
     return  base.InputLSDyna(fpath,header="overwrite",new_include="on",create_parameters="on")
 
-def ents_new_inclu(deck:int,ents:list[base.Entity]) -> base.Entity:
+def ents_new_inclu(deck:int,ents:Iterable[base.Entity]) -> base.Entity:
     inclu = base.CreateInactiveInclude('','',deck)
     base.LoadInclude(inclu)
     base.AddToInclude(inclu,ents)

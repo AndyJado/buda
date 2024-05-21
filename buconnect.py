@@ -1,7 +1,10 @@
 from ansa import connections,base,calc,constants
 from literals import Entities,Meshes,DynaCards
 
-# FIXME: to test 
+class HolesBuilder():
+    def __init__(self) -> None:
+        pass
+
 class BoltBuilder():
 
     BOLT_CFG: dict=None
