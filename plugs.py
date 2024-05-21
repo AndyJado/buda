@@ -26,6 +26,10 @@ class Layer():
         assert self.scs is None, "scs is not None in this layer!"
         self.scs = cs
     
+    def mas_cs(self,cs: base.Entity):
+        self.mcss.append(cs)
+    
+    # FIXME: feels ugly
     def ty(self):
         if self.scs is None and len(self.mcss) == 0:
             return None
@@ -41,40 +45,42 @@ class Layer():
         # res = 'depth:{}\nscs:{}\nmcss_:{}\n'.format(self.depth,self.scs,len(self.mcss))
         return str(self.ty())
     
-    class Ty(int,Enum):
-        M = 0 # master
-        I = 1 # intermidiate
-        S = 2 # slave
+    class Ty(str,Enum):
+        M = 'M' # master
+        I = 'I' # intermidiate
+        S = 'S' # slave
 
     # def ms_append(self,)
 
-## right hand rule for coordinate sys everywhere
-## FIXME: now it simply parse a inclu
+# 
 class Eve():
 
     cs_ty = Entities.COORD
 
     def __init__(self,deck:int,inclu:base.Entity) -> None:
-        self.lyrs: list[Layer] = []
+        self.lyrs: dict[int,Layer] = {}
+        self.inclu = inclu
 
         CSs = base.CollectEntities(deck,inclu,self.cs_ty) #FIXME: there are other COORD lterals!
         assert len(CSs) >= 0, "no cs in include!"
         for cs in CSs:
             assert len(cs._name) > 0, "cs name empty!"
             dpth = self._parse_depth(cs._name)
-            cur_lyr = self._cre_layer_if_none(dpth)
-            # print(cur_lyr)
+            if dpth not in self.lyrs:
+                self.lyrs[dpth] = Layer(dpth)
+            cur_lyr = self.lyrs[dpth]
             peeled = self._remove_leading_parentheses(cs._name) 
             name_vec = peeled.split(' ')
             if name_vec[0] == 'S':
                 cur_lyr.slave_cs(cs)
             elif name_vec[0] == 'M':
-                cur_lyr.mcss.append(cs)
+                cur_lyr.mas_cs(cs)
             else:
                 print('coordinate system {} name should start with M or S !'.format(cs._name))
-            # if cur_lyr.ty() == None:
-            #     self.lyrs.pop()
-
+    
+    def __str__(self) -> str:
+        return "{}".format([l.__str__() for l in self.lyrs])
+    
     def _remove_leading_parentheses(self,s):
         while s and s[0] == '(':
             s = s[1:]
@@ -113,14 +119,12 @@ class Assemblr():
         self.layers: dict[int,list[Layer]] = {}
         self.deck = deck
 
-        lyrs = [i for e in members for i in e.lyrs]
-
-        for lyr in lyrs:
-            d = lyr.depth
-            if d not in self.layers:
-                self.layers[d] = []
-            cur = self.layers[d]
-            cur.append(lyr)
+        for e in members:
+            for (d,lyr) in e.lyrs.items():
+                if d not in self.layers:
+                    self.layers[d] = []
+                cur = self.layers[d]
+                cur.append(lyr)
     
     def __str__(self) -> str:
         return "{}".format([ "{}:{}".format(i,[l.__str__() for l in lyrs]) for (i,lyrs) in self.layers.items()])
@@ -195,27 +199,73 @@ def align_by_matrix(deck, slave_ent:list[base.Entity], slave_coord:base.Entity, 
 # MS = ['d','e'] # MS
 # MM = ['h','i','j'] #MM should be determined by MS
 # S = ['m','n'] # S
-def possi(M:list,mS:list,mM:list,S:list):
-    empty1 = len(M)-len(mS)
-    empty2 = len(M) + len(mM) - len(mS) - len(S)
+def possi(M:list,I:list[tuple[any,list]],S:list):
+
+    l_im = 0
+    l_m = len(M)
+    l_s = len(S)
+    l_is = 0
+    i_dict:dict[any,list] ={}
+
+    for (s,ms) in I:
+        l_is += 1
+        l_im += len(ms)
+        i_dict.update({s:ms})
+    
+    ms = list(i_dict.keys())
+
+    empty1 = l_m - l_is
+    empty2 = l_m + l_im - l_is - l_s
 
     assert empty2 >= 0 and empty1 >=0, "impossible!"
 
     for _ in range(0,empty1):
-        mS.append(None)
+        ms.append(None)
 
     for _ in range(0,empty2):
         S.append(None)
 
-    duh1 = set(itertools.permutations(mS))
-    duh2 = set(itertools.permutations(S))
+    is_aranges = set(itertools.permutations(ms))
+    s_aranges = set(itertools.permutations(S))
 
+    # print('s_aranges:', s_aranges)
 
-    res = []
-    for i in duh1:
-        for j in duh2:
-            res.append([i,j])
-            print([i,j],'\n\n')
+    pairs1:list[tuple[any,any]] = []
 
-    print(len(duh1),len(duh2))
+    for arange in is_aranges:
+        pair = []
+        for i,val in enumerate(arange):
+            pair.append((M[i],val))
+        pairs1.append(pair)
+
+    # print('pairs1',pairs1)
+
+    possi_assmbles: list[tuple[list,list]] = []
+
+    for par in pairs1:
+        m_is_pair = [] 
+        im = []
+        im_s_pair = []
+        for m,s in par:
+            if s is None:
+                im.append(m)
+            else:
+                m_is_pair.append((m,s))
+                im.extend(i_dict[s])
+        # print('im', im)
+        for ang in s_aranges:
+            one_im_s_pair = []
+            for i,val in enumerate(im):
+                one_im_s_pair.append((val,ang[i]))
+            im_s_pair.append(one_im_s_pair)
+
+        # print('M--iS', m_is_pair)
+        # print('iM--S', im_s_pair)
+
+        possi_assmbles.append((m_is_pair,im_s_pair))
+
+    print('one:', possi_assmbles[0])
+
+    print('lentgh:', len(possi_assmbles), len(possi_assmbles[0][1]))
+    print('permutation:',len(is_aranges),len(s_aranges))
 
