@@ -14,27 +14,22 @@ if __name__ == "__main__":
 
     # graph:list[Iterable[str]] = [['(M','M'],['S'],['(S','(M','((M'],['((S'],]
 
-    graph:list[Iterable[str]] = [['M'],['M'],['S'],['S'],['S','M','M']]
+    # graph:list[Iterable[str]] = [['M'],['M'],['S'],['S'],['S','M','M']]
 
+    graph:list[Iterable[str]] = [['M'],['M'],['S'],['S'],['S','M']]
 
     inclus = [random_cs_a_inclu(DECK,nodes_all,i) for i in graph]
 
     eves = [plugs.Eve(DECK,i) for i in inclus]
     
     asb = plugs.Assemblr(DECK,eves)
-    print(asb)
 
-    d0 = asb.layers[0]
-    M = [css for l in d0 if l.ty() == 'M' for css in l.mcss]
+    M,I,S = asb.mis_at_depth(0)
 
-    I = [(l.scs,l.mcss) for l in d0 if l.ty() == 'I']
+    all_possi = plugs.possi(M,I,S)
 
-    i_dict = {}
-    for (s,ms) in I:
-        i_dict.update({s:ms})
+    print('count:', len(all_possi),len(all_possi[0][1]))
 
-    S = [l.scs for l in d0 if l.ty() == 'S']
+    print(all_possi[0])
   
-    print(i_dict)
-
     time.end()
