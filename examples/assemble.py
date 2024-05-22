@@ -24,13 +24,12 @@ if __name__ == "__main__":
     eves = [plugs.Eve(DECK,i) for i in inclus]
     
     asb = plugs.Assemblr(DECK,eves)
+    asb.possi(0)
 
-    M,I,S = asb.mis_id_at_depth(0)
+    # print([str(i) for i in asb.dps[0]])
 
-    all_possi = plugs.possi(M,I,S)
+    pid = asb.realize_left(0,0)
 
-    print([str(i) for i in all_possi])
-
-    asb.realize(all_possi[0])
+    # print('posi id:',pid)
  
     time.end()
