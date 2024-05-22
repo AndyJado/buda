@@ -1,11 +1,13 @@
 from enum import Enum
 import math,itertools
 import numpy as np
-from typing import Callable, Iterable
+from typing import Callable, Iterable,TypeVar
 from ansa import base,constants,calc
 from literals import Entities
 from ansa.base import Entity
 import logging
+
+A = TypeVar('A')
 
 def unplug_meshes(deck:int):
     nodes = base.CollectEntitiesI(deck,None,"NODE") # ELEMENT will delete parts!
@@ -16,6 +18,18 @@ def paramlater(deck:int, ent: base.Entity, field:str,name:str):
     val = cardic.get(field) or  0 # 'None' if none
     param = base.CreateEntity(deck,"A_PARAMETER", {'Name':name})
     return ent.set_entity_values(deck,{field: '='+name})
+
+class Possi():
+
+    def __init__(self,id:int,lhs:list[tuple[A,A]],rhs:list[tuple[A,A]]) -> None:
+        self.id = id
+        self.lhs = lhs
+        self.rhs = rhs
+    
+    def __str__(self) -> str:
+        return "MASTER:{},SLAVE_POSSIBLES:{}".format(self.lhs,len(self.rhs))
+    
+   
 
 class Layer():
     def __init__(self,d:int) -> None:
@@ -121,6 +135,7 @@ class Assemblr():
         self.deck = deck
 
         for e in members:
+            self.cs_ty = e.cs_ty
             for (d,lyr) in e.lyrs.items():
                 if d not in self.layers:
                     self.layers[d] = []
@@ -146,6 +161,18 @@ class Assemblr():
         for p in layer_possis:
             pass
 
+    def realize(self,p: Possi):
+        for m,s in p.lhs:
+            assert isinstance(m,int), "should be COORD id a int!"
+            mcs = base.GetEntity(self.deck,self.cs_ty,m)
+            scs = base.GetEntity(self.deck,self.cs_ty,s)
+            slave_inclu = base.GetEntityInclude(scs)
+            to_tran_ents_ty = [Entities.PROPERTY,Entities.COORD]
+            to_tran_slave = base.CollectEntities(self.deck,slave_inclu,to_tran_ents_ty)
+            align_by_matrix(self.deck,to_tran_slave,scs,mcs)
+        return p.id
+
+        
 
     def recurr(self):
         cur_depth = min(self.layers.keys())
@@ -214,16 +241,7 @@ def align_by_matrix(deck, slave_ent:list[base.Entity], slave_coord:base.Entity, 
         keep_connectivity=True,
     )
 
-# BUG: kill !
-class Possi():
 
-    def __init__(self,id:int,lhs:list,rhs:list) -> None:
-        self.id = id
-        self.lhs = lhs
-        self.rhs = rhs
-    
-    def __str__(self) -> str:
-        return "MASTER:{},SLAVE_POSSIBLES:{}".format(self.lhs,len(self.rhs))
 
 def possi(M:list,I:list[tuple[any,list]],S:list):
 

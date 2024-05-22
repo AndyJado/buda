@@ -12,9 +12,10 @@ if __name__ == "__main__":
 
     nodes_all = set(base.CollectEntities(DECK,None,literals.Meshes.NODE))
 
-    graph:list[Iterable[str]] = [['(M','M'],['S'],['(S','(M','((M'],['((S'],]
+    ## this should not work 
+    # graph:list[Iterable[str]] = [['(M','M'],['S'],['(S','(M','((M'],['((S'],]
 
-    # graph:list[Iterable[str]] = [['M'],['M'],['S'],['S'],['S','M','M']]
+    graph:list[Iterable[str]] = [['M','M'],['M'],['S'],['S'],['S','M','M'],['S','M']]
 
     # graph:list[Iterable[str]] = [['M'],['M'],['S'],['S'],['S','M']]
 
@@ -28,6 +29,8 @@ if __name__ == "__main__":
 
     all_possi = plugs.possi(M,I,S)
 
-    print(all_possi[0])
-  
+    print([str(i) for i in all_possi])
+
+    asb.realize(all_possi[0])
+ 
     time.end()
