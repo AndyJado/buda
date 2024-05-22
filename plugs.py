@@ -51,7 +51,7 @@ class Possi():
     def possi_check(self)->int:
 
         assert len(self.lhs) > 0, "not support 0 MASTER yet"
-        lsp = len(self.rhs)
+        lsp = len(self.rhs) # left salve possibles?
         if lsp == 0:
             return 1
         return lsp
@@ -151,6 +151,7 @@ class Eve():
                 break
         return count
 
+# a 3 recur unit consists of M and I and S
 MIS = Tuple[List[A],List[Tuple[A,List[A]]],List[A]]
     
 ## FIXME: to test possibles !==1
@@ -185,12 +186,24 @@ class Assemblr():
                     cur[2].append(sid)
 
                 e.inclu.set_entity_values(self.deck,{'Name':lyr.ty()})
-
     
     def __str__(self) -> str:
         return "{}".format([ "{}:{}".format(i,[l.__str__() for l in lyrs]) for (i,lyrs) in self.layers.items()])
+
+    def possibles_each_depth(self):
+        left = {}
+        for k,val in self.dps.items():
+            left[k] = len(val)
+        print(left)
+        return left
+
+    def possi_d_all(self):
+        for k in self.layers.keys():
+            self.possi(k)
     
     def possi(self,d:int):
+        assert self.dps.get(d) is None, "possi already there!"
+
         M,I,S = self.layers[d]
 
         l_im = 0
@@ -258,9 +271,7 @@ class Assemblr():
             possi_assmbles.append(Possi(possi_id,m_is_pair,im_s_pair))
             possi_id += 1
 
-
         self.dps.update({d:possi_assmbles}) 
-
 
 
     def realize_left(self,d:int,pid: int) -> int:

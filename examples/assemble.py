@@ -13,9 +13,9 @@ if __name__ == "__main__":
     nodes_all = set(base.CollectEntities(DECK,None,literals.Meshes.NODE))
 
     ## this should not work 
-    # graph:list[Iterable[str]] = [['(M','M'],['S'],['(S','(M','((M'],['((S'],]
+    graph:list[Iterable[str]] = [['(M','M'],['S'],['(S','(M','((M'],['((S'],]
 
-    graph:list[Iterable[str]] = [['M','M'],['M'],['S'],['S'],['S','M','M'],['S','M']]
+    # graph:list[Iterable[str]] = [['M','M'],['M'],['S'],['S'],['S','M','M'],['S','M']]
 
     # graph:list[Iterable[str]] = [['M'],['M'],['S'],['S'],['S','M']]
 
@@ -24,9 +24,10 @@ if __name__ == "__main__":
     eves = [plugs.Eve(DECK,i) for i in inclus]
     
     asb = plugs.Assemblr(DECK,eves)
-    asb.possi(0)
 
-    # print([str(i) for i in asb.dps[0]])
+    asb.possi_d_all()
+    
+    asb.possibles_each_depth()
 
     pid = asb.realize_left(0,0)
 
