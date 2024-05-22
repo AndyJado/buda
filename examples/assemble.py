@@ -12,11 +12,11 @@ if __name__ == "__main__":
 
     nodes_all = set(base.CollectEntities(DECK,None,literals.Meshes.NODE))
 
-    # graph:list[Iterable[str]] = [['(M','M'],['S'],['(S','(M','((M'],['((S'],]
+    graph:list[Iterable[str]] = [['(M','M'],['S'],['(S','(M','((M'],['((S'],]
 
     # graph:list[Iterable[str]] = [['M'],['M'],['S'],['S'],['S','M','M']]
 
-    graph:list[Iterable[str]] = [['M'],['M'],['S'],['S'],['S','M']]
+    # graph:list[Iterable[str]] = [['M'],['M'],['S'],['S'],['S','M']]
 
     inclus = [random_cs_a_inclu(DECK,nodes_all,i) for i in graph]
 
@@ -24,11 +24,9 @@ if __name__ == "__main__":
     
     asb = plugs.Assemblr(DECK,eves)
 
-    M,I,S = asb.mis_at_depth(0)
+    M,I,S = asb.mis_id_at_depth(0)
 
     all_possi = plugs.possi(M,I,S)
-
-    print('count:', len(all_possi),len(all_possi[0][1]))
 
     print(all_possi[0])
   

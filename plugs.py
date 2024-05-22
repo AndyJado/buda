@@ -130,7 +130,7 @@ class Assemblr():
     def __str__(self) -> str:
         return "{}".format([ "{}:{}".format(i,[l.__str__() for l in lyrs]) for (i,lyrs) in self.layers.items()])
     
-    def mis_at_depth(self,d:int):
+    def mis_id_at_depth(self,d:int):
         css = self.layers[d] #FIXME: if no key?
         M = [css._id for l in css if l.ty() == 'M' for css in l.mcss]
         I = [(l.scs,l.mcss) for l in css if l.ty() == 'I']
@@ -141,7 +141,7 @@ class Assemblr():
         return M,Iids,S
 
     def assemble_layer(self,d:int):
-        M,I,S = self.mis_at_depth(d)
+        M,I,S = self.mis_id_at_depth(d)
         layer_possis = possi(M,I,S)
         for p in layer_possis:
             pass
@@ -216,77 +216,14 @@ def align_by_matrix(deck, slave_ent:list[base.Entity], slave_coord:base.Entity, 
 
 # BUG: kill !
 class Possi():
-    def __init__(self,M:list[Entity],I:list[tuple[Entity,list[Entity]]],S:list[Entity]) -> None:
-        l_im = 0
-        l_m = len(M)
-        l_s = len(S)
-        l_is = 0
-        i_dict:dict[Entity,list[Entity]] ={}
 
-        for (s,ms) in I:
-            l_is += 1
-            l_im += len(ms)
-            i_dict.update({s:ms})
-        
-        ms = list(i_dict.keys())
-
-        empty1 = l_m - l_is
-        empty2 = l_m + l_im - l_is - l_s
-
-        assert empty2 >= 0 and empty1 >=0, "impossible!"
-
-        for _ in range(0,empty1):
-            ms.append(None)
-
-        for _ in range(0,empty2):
-            S.append(None)
-
-        is_aranges = set(itertools.permutations(ms))
-        s_aranges = set(itertools.permutations(S))
-
-        # print('s_aranges:', s_aranges)
-
-        pairs1:list[tuple[any,any]] = []
-
-        for arange in is_aranges:
-            pair = []
-            for i,val in enumerate(arange):
-                pair.append((M[i],val))
-            pairs1.append(pair)
-
-        # print('pairs1',pairs1)
-
-        possi_assmbles: list[tuple[list,list]] = []
-
-        for par in pairs1:
-            m_is_pair = [] 
-            im = []
-            im_s_pair = []
-            for m,s in par:
-                if s is None:
-                    im.append(m)
-                else:
-                    m_is_pair.append((m,s))
-                    im.extend(i_dict[s])
-            # print('im', im)
-            for ang in s_aranges:
-                one_im_s_pair = []
-                for i,val in enumerate(im):
-                    one_im_s_pair.append((val,ang[i]))
-                im_s_pair.append(one_im_s_pair)
-
-            # print('M--iS', m_is_pair)
-            # print('iM--S', im_s_pair)
-
-            possi_assmbles.append((m_is_pair,im_s_pair))
-
-        # print('one:', possi_assmbles[0])
-        # print('lentgh:', len(possi_assmbles), len(possi_assmbles[0][1]))
-        # print('permutation:',len(is_aranges),len(s_aranges))
-
-        self.possis =  possi_assmbles
-        self.left = [i[0] for i in self.possis]
-        
+    def __init__(self,id:int,lhs:list,rhs:list) -> None:
+        self.id = id
+        self.lhs = lhs
+        self.rhs = rhs
+    
+    def __str__(self) -> str:
+        return "MASTER:{},SLAVE_POSSIBLES:{}".format(self.lhs,len(self.rhs))
 
 def possi(M:list,I:list[tuple[any,list]],S:list):
 
@@ -329,9 +266,10 @@ def possi(M:list,I:list[tuple[any,list]],S:list):
 
     # print('pairs1',pairs1)
 
-    possi_assmbles: list[tuple[list,list]] = []
+    possi_assmbles = []
 
     for par in pairs1:
+        possi_id= 0
         m_is_pair = [] 
         im = []
         im_s_pair = []
@@ -351,7 +289,8 @@ def possi(M:list,I:list[tuple[any,list]],S:list):
         # print('M--iS', m_is_pair)
         # print('iM--S', im_s_pair)
 
-        possi_assmbles.append((m_is_pair,im_s_pair))
+        possi_assmbles.append(Possi(possi_id,m_is_pair,im_s_pair))
+        possi_id += 1
 
     # print('one:', possi_assmbles[0])
     # print('lentgh:', len(possi_assmbles), len(possi_assmbles[0][1]))

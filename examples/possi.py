@@ -16,4 +16,4 @@ if __name__ == "__main__":
 
     all_possi = plugs.possi(M,I,S)
 
-    print(all_possi[0][0],'\n\n\n',all_possi[1][0])
+    print([str(i) for i in all_possi])
