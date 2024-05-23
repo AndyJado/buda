@@ -11,13 +11,13 @@ if __name__ == "__main__":
 
     fps = [rail_path,spacer_path,ballar_path]
 
-    inclus = [bubase.dyna_a_include(p) for p in fps]
+    inclus = [plugs.Eve(DECK,bubase.dyna_a_include(p)) for p in fps]
  
     asb = plugs.Assemblr(DECK,inclus) 
-   
-    duh = asb.possibles()
-    print('remain possibles:',duh)
-    asb.final()
+
+    asb.possi_d_all()
+
+    asb.realize_all()
 
     #-----------------------------------
-    time.end()
+    time.end() 

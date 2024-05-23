@@ -233,7 +233,7 @@ class Assemblr():
         is_aranges = set(itertools.permutations(ms))
         s_aranges = set(itertools.permutations(S))
 
-        print('possi at current depth:', len(s_aranges) , len(is_aranges))
+        print('possi at depth {} has:'.format(d), len(s_aranges) , len(is_aranges))
 
         pairs1:list[tuple[any,any]] = []
 
@@ -273,19 +273,36 @@ class Assemblr():
 
         self.dps.update({d:possi_assmbles}) 
 
+    # BUG!
+    def realize_all(self):
+        ds = list(self.dps.keys())
+        ds.sort(reverse=True) # 4,3,2,1..
+        for d in ds:
+            self.realize_left(d,0)
+
 
     def realize_left(self,d:int,pid: int) -> int:
         p = self.dps[d][pid]
 
-        for m,s in p.lhs:
-            assert isinstance(m,int), "should be COORD id a int!"
-            mcs = base.GetEntity(self.deck,self.cs_ty,m)
-            scs = base.GetEntity(self.deck,self.cs_ty,s)
-            slave_inclu = base.GetEntityInclude(scs)
-            to_tran_ents_ty = [Entities.PROPERTY,Entities.COORD]
-            to_tran_slave = base.CollectEntities(self.deck,slave_inclu,to_tran_ents_ty)
-            align_by_matrix(self.deck,to_tran_slave,scs,mcs)
+        for mcsid,scsid in p.lhs:
+            assert isinstance(mcsid,int), "should be COORD id a int!"
+            self.transform_inclu(mcsid,scsid)
+
+        if len(p.rhs) ==1:
+            par = p.rhs[0]
+            for mcsid,scsid in par:
+                self.transform_inclu(mcsid,scsid)
+
         return p.id
+    
+    def transform_inclu(self,mcsid:int,scsid:int):
+        mcs = base.GetEntity(self.deck,self.cs_ty,mcsid)
+        scs = base.GetEntity(self.deck,self.cs_ty,scsid)
+        slave_inclu = base.GetEntityInclude(scs)
+        to_tran_ents_ty = [Entities.PROPERTY,Entities.COORD]
+        to_tran_slave = base.CollectEntities(self.deck,slave_inclu,to_tran_ents_ty)
+        align_by_matrix(self.deck,to_tran_slave,scs,mcs)
+
        
 def array_matrix(deck, coord:base.Entity):
     matrix = calc.GetCoordTransformMatrix4x3(deck, coord, 0,0,0)
