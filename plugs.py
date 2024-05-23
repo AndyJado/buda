@@ -2,7 +2,7 @@ from enum import Enum
 import math,itertools
 import numpy as np
 from typing import Callable, Iterable, List, Tuple,TypeVar
-from ansa import base,constants,calc
+from ansa import base,constants,calc,guitk
 from literals import Entities,Meshes
 from ansa.base import Entity
 import logging
@@ -50,7 +50,6 @@ class Possi():
 
     def possi_check(self)->int:
 
-        assert len(self.lhs) > 0, "not support 0 MASTER yet"
         lsp = len(self.rhs) # left salve possibles?
         if lsp == 0:
             return 1
@@ -163,6 +162,8 @@ class Assemblr():
         self.layers: dict[int,MIS] = {}
         self.dps: dict[int,list[Possi]] ={}
         self.deck = deck
+        self.p: Possi = None
+        self.done: bool = False
 
         for e in members:
             self.cs_ty = e.cs_ty
@@ -197,6 +198,7 @@ class Assemblr():
         print(left)
         return left
 
+    # update all possibles in all depth to self.dps
     def possi_d_all(self):
         for k in self.layers.keys():
             self.possi(k)
@@ -278,8 +280,53 @@ class Assemblr():
         ds = list(self.dps.keys())
         ds.sort() # 1,2,3,4..
         for d in ds:
-            self.realize_left(d,0)
+           self.realize_left(d,0)
+    
+    def focus_possi(self):
+        d = self.current_depth() 
+        if len(self.dps[d]) == 0:
+            self.dps.pop(d)
+        
+    
+    def current_depth(self):
+        keys = self.dps.keys()
+        assert len(keys) != 0,"no more possis no more depth!!"
+        return min(keys)
+    
+    def current_p(self):
+        keys = self.dps.keys()
+        if len(keys) == 0:
+            self.done = True
+            return
+        d = min(keys)
+        ps = self.dps[d]
+        if len(ps) == 0:
+            self.dps.pop(d)
+            self.current_p()
+        self.p = ps.pop()
+       
 
+    # return current possi id if possible
+    def realize_next_left(self):
+        self.current_p()
+        print('sefl.p',self.p)
+        for par in self.p.lhs:
+            self.realize_pair(par)
+            
+    def realize_next_right(self):
+        if self.p is None:
+            self.current_p()
+            
+        ps = self.p.rhs
+        if len(ps) == 0:
+            return
+        pars = ps.pop()
+        for par in pars:
+            self.realize_pair(par)
+
+    def realize_pair(self,pair:Pair):
+        mcsid,scsid = pair
+        self.transform_inclu(mcsid,scsid)
 
     def realize_left(self,d:int,pid: int) -> int:
         p = self.dps[d][pid]
@@ -307,6 +354,37 @@ class Assemblr():
         align_by_matrix(self.deck,to_tran_slave,scs,mcs)
         ents_in_slave = base.CollectEntitiesI(self.deck,slave_inclu,Entities.ALL)
         base.AddToInclude(master_inclu,ents_in_slave)
+
+    def buttn(self):
+        def onleft(action, data):
+            self.realize_next_left()
+            return 0
+
+        def onright(action, data):
+            self.realize_next_right()
+            return 0
+
+
+        window = guitk.BCWindowCreate("Action", guitk.constants.BCOnExitDestroy)
+
+        action = guitk.BCActionCreate(window, "Action", onleft)
+
+        action_salve = guitk.BCActionCreate(window,"duh",onright)
+
+        next_lhs = guitk.BCPushButtonCreate(window, "NEXT MASTER", None, None)
+
+        next_rhs = guitk.BCPushButtonCreate(window, "NEXT SLAVE", None, None)
+
+
+        # this line make button trigger action
+        guitk.BCActionAddWidget(action, next_lhs)
+        guitk.BCActionAddWidget(action_salve,next_rhs)
+
+        guitk.BCShow(window)
+
+
+
+
 
        
 def array_matrix(deck, coord:base.Entity):

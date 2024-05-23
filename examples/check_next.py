@@ -1,36 +1,28 @@
 from ansa import guitk
+import os
 
 def main():
+    os.system('clear')
     window = guitk.BCWindowCreate("Action", guitk.constants.BCOnExitDestroy)
+
     action = guitk.BCActionCreate(window, "Action", onAction, ['M'])
-    pBtn = guitk.BCPushButtonCreate(window, "Trigger Action", None, None)
 
-    # Widget under control of action
-    guitk.BCActionSetCheckable(action, True)
-    guitk.BCActionTrigger(action)
-    guitk.BCActionSetChecked(action, False)
+    action_salve = guitk.BCActionCreate(window,"duh",onAction,['a'])
 
-    if guitk.BCActionIsCheckable(action):
-        print("Action is Checkable")
+    next_lhs = guitk.BCPushButtonCreate(window, "NEXT MASTER", None, None)
+
+    next_rhs = guitk.BCPushButtonCreate(window, "NEXT SLAVE", None, None)
+
 
     # this line make button trigger action
-    widget = guitk.BCActionAddWidget(action, pBtn)
-
-    if widget:
-        print("Widget was added successfully to action")
-    else:
-        print("Widget was not added successfully to action")
+    guitk.BCActionAddWidget(action, next_lhs)
+    guitk.BCActionAddWidget(action_salve,next_rhs)
 
     guitk.BCShow(window)
 
 
 def onAction(action, data):
-    print("Action Happened")
     print(data) # this print ['M']
-    state = "Off"
-    if guitk.BCActionIsChecked(action):
-        state = "On"
-    print("Current state of Action is: " + state)
     return 0
 
 

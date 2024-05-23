@@ -26,9 +26,11 @@ if __name__ == "__main__":
 
     asb.possi_d_all()
 
-    print(asb.dps[0][0])
+    asb.buttn()
 
-    asb.realize_all()
+    # print(asb.dps[0][0])
+
+    # asb.realize_all()
 
     #-----------------------------------
     time.end() 
