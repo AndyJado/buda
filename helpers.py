@@ -79,18 +79,35 @@ def shell_mesh_local(deck:int,faceshell:base.Entity):
 def a_plate_mesh(deck:int) -> base.Entity:
     curvs = draw_circle(deck,200)
     face = curve2plane(curvs)
-    refs = base.ReferenceEntities(face,True)
     shell_mesh_local(deck,face)
     one_prop(deck,None)
     return base.GetEntity(deck,literals.Entities.PROPERTY,2) # idk but it's 2
+
+def white_mouse_a_inclu(deck:int,curvs, cs_name: Iterable[str]):
+    face = curve2plane(curvs)
+    shell_mesh_local(deck,face)
+    # one_prop(deck,None)
+    # ppt = base.GetEntity(deck,literals.Entities.PROPERTY,2) # idk but it's 2
+    ppts = base.CollectEntities(deck,face,literals.Meshes.ELEMENT)
+    nodes = base.CollectEntities(deck,ppts,literals.Meshes.NODE,recursive=True) # must recursive
+
+    inclu = random_cs_a_inclu(deck,set(nodes),cs_name)
+    base.AddToInclude(inclu,ppts)
+    return inclu
+
    
+# return the INCLUDE
 def random_cs_a_inclu(deck:int, nodes: Iterable[base.Entity],cs_name:Iterable[str]):
     f = lambda: (nodes.pop()._id for _ in range(3))
     css = []
 
     for name in cs_name:
         x,y,z = f()
+        print('3 random nodes:',x,y,z)
         cys = buconnect.cre_coord_sys_3node(deck,x,y,z)
+        while cys is None:
+            x,y,z = f()
+            cys = buconnect.cre_coord_sys_3node(deck,x,y,z)
         base.SetEntityCardValues(deck,cys,{'Name':name})
         css.append(cys)
 

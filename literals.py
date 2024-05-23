@@ -1,7 +1,7 @@
 from enum import Enum
 
 class Entities(str, Enum):
-    # ALL: str ='__ALL_ENTITIES__'
+    ALL: str ='__ALL_ENTITIES__'
     PART: str = 'ANSAPART'
     PROPERTY: str = '__PROPERTIES__'
     MATERIAL: str = '__MATERIALS__'

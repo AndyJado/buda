@@ -3,7 +3,7 @@ import math,itertools
 import numpy as np
 from typing import Callable, Iterable, List, Tuple,TypeVar
 from ansa import base,constants,calc
-from literals import Entities
+from literals import Entities,Meshes
 from ansa.base import Entity
 import logging
 
@@ -276,7 +276,7 @@ class Assemblr():
     # BUG!
     def realize_all(self):
         ds = list(self.dps.keys())
-        ds.sort(reverse=True) # 4,3,2,1..
+        ds.sort() # 1,2,3,4..
         for d in ds:
             self.realize_left(d,0)
 
@@ -288,10 +288,12 @@ class Assemblr():
             assert isinstance(mcsid,int), "should be COORD id a int!"
             self.transform_inclu(mcsid,scsid)
 
-        if len(p.rhs) ==1:
-            par = p.rhs[0]
-            for mcsid,scsid in par:
-                self.transform_inclu(mcsid,scsid)
+        if len(p.rhs) !=1:
+            print('WARN: rhs has possi left!!')
+            
+        par = p.rhs[0]
+        for mcsid,scsid in par:
+            self.transform_inclu(mcsid,scsid)
 
         return p.id
     
@@ -299,9 +301,12 @@ class Assemblr():
         mcs = base.GetEntity(self.deck,self.cs_ty,mcsid)
         scs = base.GetEntity(self.deck,self.cs_ty,scsid)
         slave_inclu = base.GetEntityInclude(scs)
-        to_tran_ents_ty = [Entities.PROPERTY,Entities.COORD]
+        master_inclu = base.GetEntityInclude(mcs)
+        to_tran_ents_ty = [Entities.PROPERTY,Entities.COORD,Meshes.ELEMENT]
         to_tran_slave = base.CollectEntities(self.deck,slave_inclu,to_tran_ents_ty)
         align_by_matrix(self.deck,to_tran_slave,scs,mcs)
+        ents_in_slave = base.CollectEntitiesI(self.deck,slave_inclu,Entities.ALL)
+        base.AddToInclude(master_inclu,ents_in_slave)
 
        
 def array_matrix(deck, coord:base.Entity):
