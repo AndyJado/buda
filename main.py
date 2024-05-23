@@ -6,7 +6,7 @@ if __name__ == "__main__":
     DECK = ansa.constants.LSDYNA
     time = helpers.NewScript(DECK)
     #-----------------------------------
-    fps = glob.glob(f'asset/teile/*.key',recursive=True)
+    fps = glob.glob(f'asset/parts/*.key',recursive=True)
 
     inclus = [bubase.dyna_a_include(p) for p in fps]
 
@@ -19,8 +19,12 @@ if __name__ == "__main__":
 
     asb.possi_d_all()
 
+    # for k,v in asb.dps.items():
+    #     print(k,v)
     # asb.buttn()
-    # asb.realize_all()
+    asb.left_chains()
+    asb.realize_next_left()
+    asb.realize_next_right()
 
     #-----------------------------------
     time.end() 

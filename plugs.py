@@ -162,8 +162,7 @@ class Assemblr():
         self.layers: dict[int,MIS] = {}
         self.dps: dict[int,list[Possi]] ={}
         self.deck = deck
-        self.p: Possi = None
-        self.done: bool = False
+        self.chains: list[list[Possi]] = []
 
         for e in members:
             self.cs_ty = e.cs_ty
@@ -235,7 +234,7 @@ class Assemblr():
         is_aranges = set(itertools.permutations(ms))
         s_aranges = set(itertools.permutations(S))
 
-        print('possi at depth {} has:'.format(d), len(s_aranges) , len(is_aranges))
+        print('possi at depth {} has:'.format(d), len(is_aranges) , len(s_aranges))
 
         pairs1:list[tuple[any,any]] = []
 
@@ -274,76 +273,48 @@ class Assemblr():
             possi_id += 1
 
         self.dps.update({d:possi_assmbles}) 
-
-    # BUG!
-    def realize_all(self):
+    
+    def left_chains(self):
         ds = list(self.dps.keys())
-        ds.sort() # 1,2,3,4..
-        for d in ds:
-           self.realize_left(d,0)
-    
-    def focus_possi(self):
-        d = self.current_depth() 
-        if len(self.dps[d]) == 0:
-            self.dps.pop(d)
-        
-    
-    def current_depth(self):
-        keys = self.dps.keys()
-        assert len(keys) != 0,"no more possis no more depth!!"
-        return min(keys)
-    
-    def current_p(self):
-        keys = self.dps.keys()
-        if len(keys) == 0:
-            self.done = True
-            return
-        d = min(keys)
-        ps = self.dps[d]
-        if len(ps) == 0:
-            self.dps.pop(d)
-            self.current_p()
-        self.p = ps.pop()
-       
+        ds.sort()
+        ps_each_layer = [self.dps[d] for d in ds]
+        self.chains = generate_combinations(ps_each_layer)
 
-    # return current possi id if possible
+        # # for chain in res:
+        #     print([str(i) for i in chain])
+
     def realize_next_left(self):
-        self.current_p()
-        print('sefl.p',self.p)
-        for par in self.p.lhs:
-            self.realize_pair(par)
-            
-    def realize_next_right(self):
-        if self.p is None:
-            self.current_p()
-            
-        ps = self.p.rhs
-        if len(ps) == 0:
-            return
-        pars = ps.pop()
-        for par in pars:
-            self.realize_pair(par)
+        if len(self.chains) == 0:
+            print("WARN: nothing in chain!")
 
+        next = self.chains[-1]
+        for p in next:
+            for pr in p.lhs:
+                self.realize_pair(pr)
+    
+    def realize_next_right(self):
+         if len(self.chains) == 0:
+            print("WARN: nothing in chain!")
+         next = self.chains[-1]
+
+        #  next_rights_all = [ i.rhs for i in next]
+        #  rights_chain = generate_combinations(next_rights_all)
+        #  for i in rights_chain:
+        #      for l in i:
+                
+         d = 0
+         for p in next:
+            num = len(p.rhs)
+            if num == 0: return
+            print("layer {} has {} right possibles left".format(d,num))
+            d+=1
+            for par in p.rhs[-1]:
+                self.realize_pair(par)
+     
     def realize_pair(self,pair:Pair):
         mcsid,scsid = pair
         self.transform_inclu(mcsid,scsid)
 
-    def realize_left(self,d:int,pid: int) -> int:
-        p = self.dps[d][pid]
-
-        for mcsid,scsid in p.lhs:
-            assert isinstance(mcsid,int), "should be COORD id a int!"
-            self.transform_inclu(mcsid,scsid)
-
-        if len(p.rhs) !=1:
-            print('WARN: rhs has possi left!!')
-            
-        par = p.rhs[0]
-        for mcsid,scsid in par:
-            self.transform_inclu(mcsid,scsid)
-
-        return p.id
-    
     def transform_inclu(self,mcsid:int,scsid:int):
         mcs = base.GetEntity(self.deck,self.cs_ty,mcsid)
         scs = base.GetEntity(self.deck,self.cs_ty,scsid)
@@ -356,12 +327,17 @@ class Assemblr():
         base.AddToInclude(master_inclu,ents_in_slave)
 
     def buttn(self):
+        
+        def popleft(action,data):
+            self.chains.pop()
+            return 0
+            
         def onleft(action, data):
             self.realize_next_left()
+            self.realize_next_right()
             return 0
 
         def onright(action, data):
-            self.realize_next_right()
             return 0
 
 
@@ -423,3 +399,12 @@ def align_by_matrix(deck, slave_ent:list[base.Entity], slave_coord:base.Entity, 
         keep_connectivity=True,
     )
 
+# AI code
+def generate_combinations(arrays, current_index=0, current_combination=[]):
+    if current_index == len(arrays):
+        return [current_combination]
+    combinations = []
+    for value in arrays[current_index]:
+        new_combination = current_combination + [value]
+        combinations.extend(generate_combinations(arrays, current_index + 1, new_combination))
+    return combinations

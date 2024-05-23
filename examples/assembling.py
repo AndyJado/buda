@@ -16,7 +16,7 @@ if __name__ == "__main__":
     # e = ['((S']
     # pack = [a,b,c,d,e]
 
-    pack = [['M','M'],['S','(S'],['S'],['(M']]
+    pack = [['M','M'],['S','(S'],['M','S'],['(M']]
 
     inclus = [helpers.white_mouse_a_inclu(DECK,helpers.draw_rec(100,100),i) for i in pack]
     eves = [plugs.Eve(DECK,i) for i in inclus]
@@ -26,7 +26,11 @@ if __name__ == "__main__":
 
     asb.possi_d_all()
 
-    asb.buttn()
+    asb.left_chains()
+
+    asb.realize_next_left()
+
+    # asb.buttn()
 
     # print(asb.dps[0][0])
 

@@ -95,7 +95,6 @@ def white_mouse_a_inclu(deck:int,curvs, cs_name: Iterable[str]):
     base.AddToInclude(inclu,ppts)
     return inclu
 
-   
 # return the INCLUDE
 def random_cs_a_inclu(deck:int, nodes: Iterable[base.Entity],cs_name:Iterable[str]):
     f = lambda: (nodes.pop()._id for _ in range(3))
