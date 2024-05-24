@@ -1,6 +1,7 @@
 import ansa,logging,sys,gc
-import buconnect,bumesh,helpers,bubase,plugs
+import buconnect,bumesh,helpers,bubase,plugs,literals
 import glob
+from ansa import base
 
 if __name__ == "__main__":
     DECK = ansa.constants.LSDYNA
@@ -10,21 +11,31 @@ if __name__ == "__main__":
 
     inclus = [bubase.dyna_a_include(p) for p in fps]
 
-    # for i in inclus:
-    #     duh = ansa.base.Cog(i)
-    #     print(duh)
+    all = base.CollectEntities(DECK,None,literals.Entities.ALL)
+
     eves = [plugs.Eve(DECK,i) for i in inclus]
  
     asb = plugs.Assemblr(DECK,eves) 
 
     asb.possi_d_all()
+    asb.chains_all()
 
-    # for k,v in asb.dps.items():
-    #     print(k,v)
-    # asb.buttn()
-    asb.left_chains()
-    asb.realize_next_left()
-    asb.realize_next_right()
+    # print(len(asb.chains))
+    
+    # asb.buttn(all)
+    # print(asb.chains)
+
+    # asb.realize_chain_id(3)
+
+    # gut = ([(4, 11), (2, 13)], [(1, 9)], [(6, 5), (8, 10)],[(14, 3), (7, 12)])
+
+    gut = ([(4, 11), (2, 13)], [(1, 9)],)
+    for c in gut:
+        for p in c:
+            asb.realize_pair(p)
+
+
+
 
     #-----------------------------------
     time.end() 

@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     asb.possi_d_all()
 
-    asb.left_chains()
+    asb.chains()
 
     asb.realize_next_left()
 

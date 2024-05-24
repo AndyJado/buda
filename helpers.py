@@ -18,6 +18,7 @@ class NewScript():
         self.start_time = time.time()
         os.chdir(cwd)
         session.New("discard")
+        # close window not working
         base.SetCurrentDeck(deck)    
 
     def end(self):

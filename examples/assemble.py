@@ -29,7 +29,7 @@ if __name__ == "__main__":
     
     asb.possibles_each_depth()
 
-    pid = asb.left_chains(0,0)
+    pid = asb.chains(0,0)
 
     # print('posi id:',pid)
  

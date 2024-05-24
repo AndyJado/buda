@@ -20,7 +20,7 @@ def paramlater(deck:int, ent: base.Entity, field:str,name:str):
     return ent.set_entity_values(deck,{field: '='+name})
 
 Pair = Tuple[A,A]
-Pairs = Iterable[Pair]
+Chain = List[Pair]
 
 class Possi():
 
@@ -29,10 +29,17 @@ class Possi():
         self.lhs = lhs
         self.rhs = rhs
     
+    # each chain denotes expresses a possi
+    def chains(self):
+        if len(self.lhs) == 0:
+            return self.rhs
+        if len(self.rhs) == 0:
+            return [self.lhs]
+        return [self.lhs + rprs for rprs in self.rhs]
+    
     def _no_way(self):
         self.lhs = []
         self.rhs = []
-
 
     def elect_pair(self,candi:Pair):
         if candi not in self.lhs:
@@ -162,7 +169,7 @@ class Assemblr():
         self.layers: dict[int,MIS] = {}
         self.dps: dict[int,list[Possi]] ={}
         self.deck = deck
-        self.chains: list[list[Possi]] = []
+        self.chains = []
 
         for e in members:
             self.cs_ty = e.cs_ty
@@ -274,43 +281,27 @@ class Assemblr():
 
         self.dps.update({d:possi_assmbles}) 
     
-    def left_chains(self):
-        ds = list(self.dps.keys())
-        ds.sort()
-        ps_each_layer = [self.dps[d] for d in ds]
-        self.chains = generate_combinations(ps_each_layer)
+    def chains_all(self):
+        keys = list(self.dps.keys())
+        keys.sort()
+        lists = [self.chains_at_depth(d) for d in keys]
+        # self.chains = list(itertools.product(*lists))
+        res = itertools.product(*lists)
+        for i in res:
+            self.chains.append(i)
+               
+            
+    def chains_at_depth(self,d:int):
+        ps = self.dps[d]
+        return [chain for p in ps for chain in p.chains()]
 
-        # # for chain in res:
-        #     print([str(i) for i in chain])
-
-    def realize_next_left(self):
-        if len(self.chains) == 0:
-            print("WARN: nothing in chain!")
-
-        next = self.chains[-1]
-        for p in next:
-            for pr in p.lhs:
-                self.realize_pair(pr)
-    
-    def realize_next_right(self):
-         if len(self.chains) == 0:
-            print("WARN: nothing in chain!")
-         next = self.chains[-1]
-
-        #  next_rights_all = [ i.rhs for i in next]
-        #  rights_chain = generate_combinations(next_rights_all)
-        #  for i in rights_chain:
-        #      for l in i:
-                
-         d = 0
-         for p in next:
-            num = len(p.rhs)
-            if num == 0: return
-            print("layer {} has {} right possibles left".format(d,num))
-            d+=1
-            for par in p.rhs[-1]:
+    def realize_chain_id(self,idx:int):
+        # chain = [par for lyrs in self.chains[idx] for par in lyrs]
+        # print(chain)
+        for pars in self.chains[idx]:
+            for par in pars:
                 self.realize_pair(par)
-     
+    
     def realize_pair(self,pair:Pair):
         mcsid,scsid = pair
         self.transform_inclu(mcsid,scsid)
@@ -320,36 +311,53 @@ class Assemblr():
         scs = base.GetEntity(self.deck,self.cs_ty,scsid)
         slave_inclu = base.GetEntityInclude(scs)
         master_inclu = base.GetEntityInclude(mcs)
-        to_tran_ents_ty = [Entities.PROPERTY,Entities.COORD,Meshes.ELEMENT]
+
+        to_tran_ents_ty = [Entities.PROPERTY,Entities.COORD,Meshes.ELEMENT,Meshes.NODE]
+
+        # to_tran_ents_ty = [Entities.COORD,Meshes.ELEMENT]
+
         to_tran_slave = base.CollectEntities(self.deck,slave_inclu,to_tran_ents_ty)
+
         align_by_matrix(self.deck,to_tran_slave,scs,mcs)
-        ents_in_slave = base.CollectEntitiesI(self.deck,slave_inclu,Entities.ALL)
+
+        # ents_in_slave = base.CollectEntitiesI(self.deck,slave_inclu,to_tran_ents_ty)
+
+        ents_in_slave = base.CollectEntities(self.deck,slave_inclu,Entities.ALL)
+
+
         base.AddToInclude(master_inclu,ents_in_slave)
 
-    def buttn(self):
+    def buttn(self, bak:list[Entity]):
         
-        def popleft(action,data):
+        def pop(action,data):
+            model = base.GetCurrentAnsaModel()
+            base.DestroyAnsaModel(model)
             self.chains.pop()
+            print('POPING!, left:',len(self.chains))
             return 0
             
-        def onleft(action, data):
-            self.realize_next_left()
-            self.realize_next_right()
+        def next(action, data):
+            print('nexting')
+            model = base.CreateNewAnsaModel()
+            base.CopyEntitiesToAnsaModel(model,bak)
+            base.SetCurrentAnsaModel(model)
+            next = self.chains[-1]
+            for dps in next:
+                for par in dps:
+                    self.realize_pair(par)
+            print('next_done')
             return 0
-
-        def onright(action, data):
-            return 0
-
+        
 
         window = guitk.BCWindowCreate("Action", guitk.constants.BCOnExitDestroy)
 
-        action = guitk.BCActionCreate(window, "Action", onleft)
+        action = guitk.BCActionCreate(window, "pop", pop)
 
-        action_salve = guitk.BCActionCreate(window,"duh",onright)
+        action_salve = guitk.BCActionCreate(window,"next",next)
 
-        next_lhs = guitk.BCPushButtonCreate(window, "NEXT MASTER", None, None)
+        next_lhs = guitk.BCPushButtonCreate(window, "pop", None, None)
 
-        next_rhs = guitk.BCPushButtonCreate(window, "NEXT SLAVE", None, None)
+        next_rhs = guitk.BCPushButtonCreate(window, "next", None, None)
 
 
         # this line make button trigger action

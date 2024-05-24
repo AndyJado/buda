@@ -11,7 +11,9 @@ class Duh():
 
 if __name__ == "__main__":
     os.system('clear')
-    duh = Duh()
-    duh2 = Duh()
-    duh.ll.append(2)
-    print(duh2.ll)
+
+    a = [1,2]
+    b = [[3,4],[5,6]]
+
+    res = [ a + j for j in b]
+    print(res)
