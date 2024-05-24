@@ -25,14 +25,14 @@ if __name__ == "__main__":
     # asb.buttn(all)
     # print(asb.chains)
 
-    # asb.realize_chain_id(3)
+    asb.realize_chain_id(3)
 
     # gut = ([(4, 11), (2, 13)], [(1, 9)], [(6, 5), (8, 10)],[(14, 3), (7, 12)])
 
-    gut = ([(4, 11), (2, 13)], [(1, 9)],)
-    for c in gut:
-        for p in c:
-            asb.realize_pair(p)
+    # gut = ([(4, 11), (2, 13)], [(1, 9)])
+    # for c in gut:
+    #     for p in c:
+    #         asb.realize_pair(p)
 
 
 

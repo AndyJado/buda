@@ -320,9 +320,9 @@ class Assemblr():
 
         align_by_matrix(self.deck,to_tran_slave,scs,mcs)
 
-        # ents_in_slave = base.CollectEntitiesI(self.deck,slave_inclu,to_tran_ents_ty)
+        ents_in_slave = base.CollectEntitiesI(self.deck,slave_inclu,to_tran_ents_ty)
 
-        ents_in_slave = base.CollectEntities(self.deck,slave_inclu,Entities.ALL)
+        # ents_in_slave = base.CollectEntities(self.deck,slave_inclu,Entities.ALL)
 
 
         base.AddToInclude(master_inclu,ents_in_slave)
