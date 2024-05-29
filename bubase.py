@@ -6,8 +6,9 @@ from literals import Entities,Meshes,Constrains
 def dyna_a_include(fpath:str) -> base.Entity:
     return  base.InputLSDyna(fpath,header="overwrite",new_include="on",create_parameters="on")
 
-def ents_new_inclu(deck:int,ents:Iterable[base.Entity]) -> base.Entity:
-    inclu = base.CreateInactiveInclude('','',deck)
+def ents_new_inclu(deck:int,ents:Iterable[base.Entity] -> base.Entity:
+    path = full_path or ''
+    inclu = base.CreateInactiveInclude('',full_path,deck)
     base.LoadInclude(inclu)
     base.AddToInclude(inclu,ents)
     # base.SetEntityCardValues(DECK,inclu,{'Output Path': 'duh'})
