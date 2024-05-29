@@ -1,6 +1,6 @@
 from helpers import *
 import ansa
-import buconnect,bumesh
+import buconnect,bumesh,bucreate,buentity,random
 from time import sleep
 
 DECK = ansa.constants.LSDYNA
@@ -21,15 +21,23 @@ if __name__ == "__main__":
 
     d_hole = 30.0
 
-    sleep(0.3)
     buconnect.copy_along_cs(cys._id,[20,30,20],[plate])
-    sleep(0.3)
     buconnect.copy_along_cs(cys._id,[20,0,10],[plate])
-    sleep(0.3)
-    bumesh.openhole(DECK,ori,d_hole)
-    sleep(0.3)
-    bolt = buconnect.BoltBuilder(DECK)
-    bolt.solid_bolt(d_hole,30.0)
-    bolt.apply()
-    
+
+    for i in range(0,2):
+        se = bucreate.cre_set(0,nodes_all.pop(),i)
+
+    base.OutputLSDyna('temp.k')
+    NewScript(DECK)
+    base.InputLSDyna('temp.k')
+
+    for i in range(0,2):
+        sets = buentity.get_ents_naming(str(i),literals.Entities.SET,True)
+        for se in sets:
+            nds = base.CollectEntities(0,se,literals.Meshes.NODE)
+            base.DeleteEntity(se)
+            to_cre = bucreate.cre_set(0,nds)
+            h_id = bucreate.cre_hole_from_set(0,to_cre._id,d_hole+random.random()*1e-4,50)
+            bucreate.cre_bolt_auto(DECK,28.0-10*i,30-10*i,'asset/mat24.key',h_id)
+ 
     timing.end()

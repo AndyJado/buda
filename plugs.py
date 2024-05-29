@@ -14,12 +14,6 @@ def unplug_meshes(deck:int):
     nodes = base.CollectEntitiesI(deck,None,"NODE") # ELEMENT will delete parts!
     base.DeleteEntity(nodes,force=True)
 
-def paramlater(deck:int, ent: base.Entity, field:str,name:str):
-    cardic = ent.card_fields(deck,True)
-    val = cardic.get(field) or  0 # 'None' if none
-    param = base.CreateEntity(deck,"A_PARAMETER", {'Name':name})
-    return ent.set_entity_values(deck,{field: '='+name})
-
 Pair = Tuple[A,A]
 Chain = List[Pair]
 
@@ -135,10 +129,26 @@ class Eve():
             if len(name_vec) > 0:
                 name = name_vec.pop()
                 self.cs_names.update({cs._id:name})
-
-            
-
     
+    def _get(self,deck:int,ty:str):
+        ents = base.CollectEntities(deck,self.inclu,ty)
+        if len(ents) == 1:
+            return ents[0]
+        else:
+            print('{} {} in {}'.format(len(ents),ty,self.inclu._name))# FIXME: don't do this
+            return ents
+
+    def _2set(self,deck:int):
+        prop = base.CollectEntities(deck,self.inclu,Entities.PROPERTY)
+        filename = self.inclu._name
+        name = filename.split('.')[0]
+        set = base.CreateEntity(deck,Entities.SET,{'Name':'props_{}'.format(name)})# FIXME: naming tricks caution
+        base.AddToSet(set,prop)
+        return set
+
+    def _add(self,ent:base.Entity):
+        base.AddToInclude(self.inclu,ent)
+
     def __str__(self) -> str:
         return "{}".format([l.__str__() for l in self.lyrs])
     
@@ -380,7 +390,6 @@ class Assemblr():
                 self.realize_pair(par)
     
     def realize_pair(self,pair:Pair):
-        time.sleep(0.2) # FIXME: for show!!  
         mcsid,scsid = pair
         if scsid is None: return
         self.transform_inclu(mcsid,scsid)
@@ -391,7 +400,7 @@ class Assemblr():
         slave_inclu = base.GetEntityInclude(scs)
         master_inclu = base.GetEntityInclude(mcs)
 
-        to_tran_ents_ty = [Entities.PROPERTY,Entities.COORD,Meshes.ELEMENT,Meshes.NODE,Entities.MATERIAL,Entities.SET]
+        to_tran_ents_ty = [Entities.PROPERTY,Entities.COORD,Meshes.ELEMENT,Meshes.NODE,Entities.MATERIAL,Entities.SET,Entities.CONNECT,"INITIAL_STRESS_SECTION"]
 
         # to_tran_ents_ty = [Entities.ALL] #! BUG
 
