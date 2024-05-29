@@ -1,5 +1,6 @@
 from ansa import connections,base,calc,constants
-from literals import Entities,Meshes,DynaCards
+from literals import Entities,Meshes,DynaCards,Constrains
+import bubase
 
 class HolesBuilder():
     def __init__(self) -> None:
@@ -103,3 +104,47 @@ def move_along_cs(cid:int,vec:list[float,float,float],ents:list[base.Entity]):
     z,
     ents,
     )
+
+def get_revolute_joint_rigid_pair(deck:int,jid:int)->tuple[base.Entity,base.Entity]:
+    kwd='CONSTRAINED_JOINT_REVOLUTE'
+    joint = base.GetEntity(deck,kwd,jid)
+    # print(joint.card_fields(deck))
+
+    nds = joint.get_entity_values(deck,['N1','N2'])
+
+    nd1 = nds['N1']
+    nd2 = nds['N2']
+
+    print(nd1)
+
+    return(_get_ppt_from_extra_nodes(deck,nd1),_get_ppt_from_extra_nodes(deck,nd2))
+
+def _get_ppt_from_extra_nodes(deck:int,node:base.Entity):
+    nd1_refs:list[base.Entity] = base.ReferenceEntities(node)
+
+    extras = [ent for ent in nd1_refs if ent.ansa_type(deck) == Constrains.EXTRA_NODE]
+
+    pidic = extras[0].get_entity_values(deck,['PID'])
+
+    return pidic['PID']
+
+
+# rigid node id
+def get_rigid_node_ppts(deck:int, rnid:int)->list[base.Entity]:
+    kwd='CONSTRAINED_NODAL_RIGID_BODY'
+
+    rigid_nd = base.GetEntity(deck,kwd,rnid)
+    print(rigid_nd.card_fields(deck))
+
+    nset = rigid_nd.get_entity_values(deck,['NSID']) #FIXME: always use set?
+
+    nset:base.Entity = nset['NSID']
+    # print('nset fields', nset.card_fields(deck,True))
+
+    # nodes
+    inset = base.CollectEntities(deck,nset,None)
+    # print('nset', inset)
+    return bubase.nodes2ppts(deck,inset)
+    
+    
+

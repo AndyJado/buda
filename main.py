@@ -18,24 +18,18 @@ if __name__ == "__main__":
     asb = plugs.Assemblr(DECK,eves) 
 
     asb.possi_d_all()
+
+    # comment this line to see diff
+    # asb.arrest_pair(11,2)
+
     asb.chains_all()
 
-    # print(len(asb.chains))
+    for i in asb.chains:
+        print(i)
+
+    print(len(asb.chains))
     
-    # asb.buttn(all)
-    # print(asb.chains)
-
-    asb.realize_chain_id(3)
-
-    # gut = ([(4, 11), (2, 13)], [(1, 9)], [(6, 5), (8, 10)],[(14, 3), (7, 12)])
-
-    # gut = ([(4, 11), (2, 13)], [(1, 9)])
-    # for c in gut:
-    #     for p in c:
-    #         asb.realize_pair(p)
-
-
-
+    asb.buttn(all)
 
     #-----------------------------------
     time.end() 

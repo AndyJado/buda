@@ -20,21 +20,14 @@ if __name__ == "__main__":
 
     inclus = [helpers.white_mouse_a_inclu(DECK,helpers.draw_rec(100,100),i) for i in pack]
     eves = [plugs.Eve(DECK,i) for i in inclus]
-    # inclus = [plugs.Eve(DECK,bubase.dyna_a_include(p)) for p in fps]
- 
+
     asb = plugs.Assemblr(DECK,eves) 
 
     asb.possi_d_all()
+    asb.chains_all()
+    for chain in asb.chains:
+        print(chain)
 
-    asb.chains()
-
-    asb.realize_next_left()
-
-    # asb.buttn()
-
-    # print(asb.dps[0][0])
-
-    # asb.realize_all()
 
     #-----------------------------------
     time.end() 

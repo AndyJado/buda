@@ -14,6 +14,12 @@ class Entities(str, Enum):
     COORD: str = 'DEFINE_COORDINATE_SYSTEM'
     INCLUDE: str = 'INCLUDE'
 
+class Constrains(str,Enum):
+    CYLINDER: str = 'CONSTRAINED_JOINT_REVOLUTE'
+    NODE: str = 'CONSTRAINED_NODAL_RIGID_BODY'
+    EXTRA_NODE: str = 'CONSTRAINED_EXTRA_NODES_NODE'
+    EXTRA_NSET: str = 'CONSTRAINED_EXTRA_NODES_SET'
+
 class Meshes(str, Enum):
     NODE: str = 'NODE'
     ELEMENT: str = '__ELEMENTS__'

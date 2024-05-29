@@ -169,7 +169,7 @@ class Assemblr():
         self.layers: dict[int,MIS] = {}
         self.dps: dict[int,list[Possi]] ={}
         self.deck = deck
-        self.chains = []
+        self.chains: Iterable[Iterable[Iterable[Pair]]] = []
 
         for e in members:
             self.cs_ty = e.cs_ty
@@ -203,6 +203,17 @@ class Assemblr():
             left[k] = len(val)
         print(left)
         return left
+    
+    def pairs_all(self):
+        res = []
+        for ps in self.dps.values():
+            for p in ps:
+                [ res.append(pr) for chain in p.chains() for pr in chain]
+        return res
+
+    def arrest_pair(self,csid:int,csid2:int):
+        pair = ((csid,csid2),(csid2,csid))
+        [p.arrest_pair(criminal) for criminal in pair for ps in self.dps.values() for p in ps]
 
     # update all possibles in all depth to self.dps
     def possi_d_all(self):
@@ -324,7 +335,6 @@ class Assemblr():
 
         # ents_in_slave = base.CollectEntities(self.deck,slave_inclu,Entities.ALL)
 
-
         base.AddToInclude(master_inclu,ents_in_slave)
 
     def buttn(self, bak:list[Entity]):
@@ -333,14 +343,17 @@ class Assemblr():
             model = base.GetCurrentAnsaModel()
             base.DestroyAnsaModel(model)
             self.chains.pop()
-            print('POPING!, left:',len(self.chains))
+            remain = len(self.chains)
+            print('POPING!, left:',remain)
             return 0
             
         def next(action, data):
             print('nexting')
+            orig = base.GetCurrentAnsaModel()
             model = base.CreateNewAnsaModel()
             base.CopyEntitiesToAnsaModel(model,bak)
             base.SetCurrentAnsaModel(model)
+            base.Not(orig)
             next = self.chains[-1]
             for dps in next:
                 for par in dps:
