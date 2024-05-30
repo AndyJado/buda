@@ -1,6 +1,6 @@
 from typing import Iterable
 from ansa import session,base,mesh,batchmesh,constants
-import os,platform,time,logging
+import os,platform,time,logging,random
 import literals,buconnect,bubase
 
 class NewScript():
@@ -112,3 +112,13 @@ def random_cs_a_inclu(deck:int, nodes: Iterable[base.Entity],cs_name:Iterable[st
         css.append(cys)
 
     return bubase.ents_new_inclu(deck,css)
+
+def random_move_ents(to_move:list[base.Entity],scale:int):
+    rng = lambda: random.random() * scale
+
+    base.GeoRotate('MOVE','AUTO_OFFSET',"SAME PART","NONE",rng(),rng(),rng(),rng(),rng(),rng(),rng(),to_move)
+
+    base.GeoTranslate('MOVE','AUTO_OFFSET',"SAME PART","NONE",rng(),rng(),rng(),to_move)
+
+def write_ents(ents:list[base.Entity],path:str):
+    base.OutputLSDyna(entities=ents,include_output_mode='references',filename=path)

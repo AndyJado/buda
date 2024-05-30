@@ -7,7 +7,7 @@ if __name__ == "__main__":
     DECK = ansa.constants.LSDYNA
     time = helpers.NewScript(DECK)
     #-----------------------------------
-    fps = glob.glob(f'asset/parts/*.key',recursive=True)
+    fps = glob.glob(f'dirty/susp/after_cs/*.k',recursive=True)
 
     inclus = [bubase.dyna_a_include(p) for p in fps]
 
@@ -19,15 +19,18 @@ if __name__ == "__main__":
 
     asb.possi_d_all()
 
-    # comment this line to see diff
-    # asb.arrest_pair(11,2)
-
     asb.chains_all()
 
-    for i in asb.chains:
-        print(i)
+    must_have_pairs = [(1,12),(7,8),(3,5)]
+    for par in must_have_pairs:
+        asb.elect_pair(par[0],par[1])
 
-    print(len(asb.chains))
+    # for i in asb.chains:
+    #     print(i)
+    most_pairs = asb.most_pair()
+    print('most_pairs',most_pairs)
+
+    print('chains left:',len(asb.chains))
     
     asb.buttn(all)
 

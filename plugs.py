@@ -6,6 +6,7 @@ from ansa import base,constants,calc,guitk
 from literals import Entities,Meshes
 from ansa.base import Entity
 import logging
+from collections import Counter
 
 A = TypeVar('A')
 
@@ -41,13 +42,6 @@ class Possi():
         self.lhs = []
         self.rhs = []
 
-    def elect_pair(self,candi:Pair):
-        if candi not in self.lhs:
-            self._no_way()
-        
-        self.rhs = [pars for pars in self.rhs if candi in pars]
-
-    
     def arrest_pair(self,criminal:Pair):
         if criminal in self.lhs:
             self._no_way()
@@ -63,7 +57,7 @@ class Possi():
         return lsp
     
     def __str__(self) -> str:
-        return "MASTER:{},ONE_SLAVE_POSSIBLES:{}".format(self.lhs,self.rhs[0])
+        return "MASTER:{},SLAVES:{}".format(self.lhs,self.rhs)
 
 class Layer():
     def __init__(self,d:int) -> None:
@@ -169,6 +163,7 @@ class Assemblr():
         self.layers: dict[int,MIS] = {}
         self.dps: dict[int,list[Possi]] ={}
         self.deck = deck
+        # possibles[layers[paris]]
         self.chains: Iterable[Iterable[Iterable[Pair]]] = []
 
         for e in members:
@@ -201,7 +196,7 @@ class Assemblr():
         left = {}
         for k,val in self.dps.items():
             left[k] = len(val)
-        print(left)
+        print('left has',left)
         return left
     
     def pairs_all(self):
@@ -210,6 +205,16 @@ class Assemblr():
             for p in ps:
                 [ res.append(pr) for chain in p.chains() for pr in chain]
         return res
+    
+    def most_pair(self):
+        flatten_pairs = [pr for chain in self.chains for prs in chain for pr in prs]
+        count = Counter(flatten_pairs)
+        return count.most_common(3)
+
+
+    def elect_pair(self,csid:int,csid2:int):
+        pair = ((csid,csid2),(csid2,csid))
+        self.chains = [ps for candi in pair for ps in self.chains for pars in ps if candi in pars]
 
     def arrest_pair(self,csid:int,csid2:int):
         pair = ((csid,csid2),(csid2,csid))
@@ -315,6 +320,7 @@ class Assemblr():
     
     def realize_pair(self,pair:Pair):
         mcsid,scsid = pair
+        if scsid is None: return
         self.transform_inclu(mcsid,scsid)
 
     def transform_inclu(self,mcsid:int,scsid:int):

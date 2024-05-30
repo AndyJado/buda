@@ -105,6 +105,14 @@ def move_along_cs(cid:int,vec:list[float,float,float],ents:list[base.Entity]):
     ents,
     )
 
+# ppt should be ansa property
+def ppt_dependent_ppts(deck:int,ppt:base.Entity):
+    nds = base.CollectEntities(deck,ppt,Meshes.NODE,recursive=True)
+    
+    assert len(nds)>0, "{}".format(nds)
+
+    return bubase.nodes2ppts(deck,nds)
+
 def get_revolute_joint_rigid_pair(deck:int,jid:int)->tuple[base.Entity,base.Entity]:
     kwd='CONSTRAINED_JOINT_REVOLUTE'
     joint = base.GetEntity(deck,kwd,jid)

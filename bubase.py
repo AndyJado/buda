@@ -6,26 +6,27 @@ from literals import Entities,Meshes,Constrains
 def dyna_a_include(fpath:str) -> base.Entity:
     return  base.InputLSDyna(fpath,header="overwrite",new_include="on",create_parameters="on")
 
-def ents_new_inclu(deck:int,ents:Iterable[base.Entity] -> base.Entity:
-    path = full_path or ''
-    inclu = base.CreateInactiveInclude('',full_path,deck)
+def ents_new_inclu(deck:int,ents:Iterable[base.Entity] )-> base.Entity:
+    inclu = base.CreateInactiveInclude('','',deck)
     base.LoadInclude(inclu)
     base.AddToInclude(inclu,ents)
     # base.SetEntityCardValues(DECK,inclu,{'Output Path': 'duh'})
     return inclu
 
+# BUG: nodes2ele func returns constrains
 def nodes2ppts(deck:int,nodes:list[base.Entity])->list[base.Entity]:
     kwds = [i.value for i in Constrains]
 
     eles0 = base.NodesToElements(nodes)
-    print(eles0)
+    # print(eles0)
 
     eles:list[base.Entity] = [e for l in eles0.values() for e in l if e.ansa_type(deck) not in kwds]
 
-    print('ele from nodes:',eles)
+    # assert len(eles) > 0, 'nodes2ppts ERR: {}'.format(eles0)
 
+    # print('ele from nodes:',eles)
     # tys = set([e.ansa_type(deck) for e in eles])
-    # print(tys)
+    # print('types of nodes to elements',tys)
 
     ppts = [e.card_fields(deck,True)['PID'] for e in eles]
     # print('ppts:',list(set(ppts)))
