@@ -206,10 +206,14 @@ class Assemblr():
                 [ res.append(pr) for chain in p.chains() for pr in chain]
         return res
     
-    def most_pair(self):
+    def pair_counter(self):
         flatten_pairs = [pr for chain in self.chains for prs in chain for pr in prs]
         count = Counter(flatten_pairs)
-        return count.most_common(3)
+        return count
+    
+    def cs_counter(self):
+        flatten:list[int] = [csid for chain in self.chains for prs in chain for pr in prs for csid in pr]
+        return Counter(flatten)
 
 
     def elect_pair(self,csid:int,csid2:int):
