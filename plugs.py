@@ -59,6 +59,7 @@ class Possi():
     def __str__(self) -> str:
         return "MASTER:{},SLAVES:{}".format(self.lhs,self.rhs)
 
+# Eve has depth layer
 class Layer():
     def __init__(self,d:int) -> None:
         self.depth = d
@@ -116,6 +117,7 @@ class Eve():
             peeled = self._remove_leading_parentheses(cs._name) 
             name_vec = peeled.split(' ')
             if name_vec[0] == 'S':
+                assert cur_lyr.scs is None,"{}breaking slave cs owenership rule!".format(self)
                 cur_lyr.slave_cs(cs)
             elif name_vec[0] == 'M':
                 cur_lyr.mas_cs(cs)
@@ -154,7 +156,6 @@ class Eve():
 # a 3 recur unit consists of M and I and S
 MIS = Tuple[List[A],List[Tuple[A,List[A]]],List[A]]
     
-## FIXME: to test possibles !==1
 class Assemblr():
 
     def __init__(self,deck:int,members:Iterable[Eve]) -> None:
@@ -212,7 +213,9 @@ class Assemblr():
         return count
     
     def cs_counter(self):
-        flatten:list[int] = [csid for chain in self.chains for prs in chain for pr in prs for csid in pr]
+        pair_counter = self.pair_counter()
+        leasts = [i[0] for i in sorted(pair_counter.items(), key=lambda item: item[1])] 
+        flatten:list[int] = [csid for pr in leasts for csid in pr]
         return Counter(flatten)
 
 
@@ -326,28 +329,30 @@ class Assemblr():
         mcsid,scsid = pair
         if scsid is None: return
         self.transform_inclu(mcsid,scsid)
-
+    
     def transform_inclu(self,mcsid:int,scsid:int):
         mcs = base.GetEntity(self.deck,self.cs_ty,mcsid)
         scs = base.GetEntity(self.deck,self.cs_ty,scsid)
         slave_inclu = base.GetEntityInclude(scs)
         master_inclu = base.GetEntityInclude(mcs)
 
-        to_tran_ents_ty = [Entities.PROPERTY,Entities.COORD,Meshes.ELEMENT,Meshes.NODE]
+        to_tran_ents_ty = [Entities.PROPERTY,Entities.COORD,Meshes.ELEMENT,Meshes.NODE,Entities.MATERIAL,Entities.SET]
 
-        # to_tran_ents_ty = [Entities.COORD,Meshes.ELEMENT]
+        # to_tran_ents_ty = [Entities.ALL] #! BUG
 
         to_tran_slave = base.CollectEntities(self.deck,slave_inclu,to_tran_ents_ty)
 
         align_by_matrix(self.deck,to_tran_slave,scs,mcs)
 
-        ents_in_slave = base.CollectEntitiesI(self.deck,slave_inclu,to_tran_ents_ty)
+        base.DeleteEntity([mcs,scs])
 
-        # ents_in_slave = base.CollectEntities(self.deck,slave_inclu,Entities.ALL)
+        ents_in_slave = base.CollectEntitiesI(self.deck,slave_inclu,to_tran_ents_ty)
 
         base.AddToInclude(master_inclu,ents_in_slave)
 
-    def buttn(self, bak:list[Entity]):
+    def buttn(self):
+        
+        bak = base.CollectEntities(self.deck,None,Entities.ALL)
         
         def pop(action,data):
             model = base.GetCurrentAnsaModel()

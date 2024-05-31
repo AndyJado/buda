@@ -1,7 +1,8 @@
+import glob
 from typing import Iterable
 from ansa import session,base,mesh,batchmesh,constants
 import os,platform,time,logging,random
-import literals,buconnect,bubase
+import literals,buconnect,bubase,plugs
 
 class NewScript():
 
@@ -122,3 +123,15 @@ def random_move_ents(to_move:list[base.Entity],scale:int):
 
 def write_ents(ents:list[base.Entity],path:str):
     base.OutputLSDyna(entities=ents,include_output_mode='references',filename=path)
+
+def assemble_a_dir(deck:int,dir:str):
+    dir1 = os.path.join(dir,f'*.key')
+    # output = 'dirty/susp.k'
+    fps = glob.glob(dir1,recursive=True)
+    inclus = [bubase.dyna_a_include(p) for p in fps]
+    # all = base.CollectEntities(deck,None,literals.Entities.ALL)
+    eves = [plugs.Eve(deck,i) for i in inclus]
+    asb = plugs.Assemblr(deck,eves) 
+    asb.possi_d_all()
+    asb.chains_all()
+    return asb
