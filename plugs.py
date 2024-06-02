@@ -1,5 +1,5 @@
 from enum import Enum
-import math,itertools
+import math,itertools,os,time
 import numpy as np
 from typing import Callable, Iterable, List, Tuple,TypeVar
 from ansa import base,constants,calc,guitk
@@ -105,24 +105,39 @@ class Eve():
     def __init__(self,deck:int,inclu:base.Entity) -> None:
         self.lyrs: dict[int,Layer] = {}
         self.inclu = inclu
+        self.cs_names : dict[int,str] = {}
 
         CSs = base.CollectEntities(deck,inclu,self.cs_ty) #FIXME: there are other COORD lterals!
         assert len(CSs) >= 0, "no cs in include!"
         for cs in CSs:
-            assert len(cs._name) > 0, "cs name empty!"
+            assert len(cs._name) > 0, "cs id: {} name empty!".format(cs._id)
+
             dpth = self._parse_depth(cs._name)
             if dpth not in self.lyrs:
                 self.lyrs[dpth] = Layer(dpth)
             cur_lyr = self.lyrs[dpth]
             peeled = self._remove_leading_parentheses(cs._name) 
             name_vec = peeled.split(' ')
-            if name_vec[0] == 'S':
+            name_vec.reverse()
+            cs_ty = name_vec.pop()
+            if cs_ty == 'S':
                 assert cur_lyr.scs is None,"{}breaking slave cs owenership rule!".format(self)
                 cur_lyr.slave_cs(cs)
-            elif name_vec[0] == 'M':
+            elif cs_ty == 'M':
                 cur_lyr.mas_cs(cs)
+            elif cs._name.startswith('^'):
+                new_cs_name = cs._name.removeprefix('^')
+                cs.set_entity_values(deck,{'Name':new_cs_name})
             else:
-                print('coordinate system {} name should start with M or S !'.format(cs._name))
+                print('coordinate system {} name should start with M or S !'.format(cs._id))
+
+            name_vec.reverse()
+            if len(name_vec) > 0:
+                name = name_vec.pop()
+                self.cs_names.update({cs._id:name})
+
+            
+
     
     def __str__(self) -> str:
         return "{}".format([l.__str__() for l in self.lyrs])
@@ -162,6 +177,8 @@ class Assemblr():
 
         # {depth : [layer]}
         self.layers: dict[int,MIS] = {}
+        self.named_cs: dict[int,str] = {}
+        self.inclus: list[Entity] = []
         self.dps: dict[int,list[Possi]] ={}
         self.deck = deck
         # possibles[layers[paris]]
@@ -169,6 +186,8 @@ class Assemblr():
 
         for e in members:
             self.cs_ty = e.cs_ty
+            self.inclus.append(e.inclu)
+            self.named_cs.update(e.cs_names)
             for (d,lyr) in e.lyrs.items():
 
                 if d not in self.layers:
@@ -188,7 +207,7 @@ class Assemblr():
                     sid = lyr.scs._id
                     cur[2].append(sid)
 
-                e.inclu.set_entity_values(self.deck,{'Name':lyr.ty()})
+                # e.inclu.set_entity_values(self.deck,{'Name':lyr.ty()})
     
     def __str__(self) -> str:
         return "{}".format([ "{}:{}".format(i,[l.__str__() for l in lyrs]) for (i,lyrs) in self.layers.items()])
@@ -201,7 +220,7 @@ class Assemblr():
         return left
     
     def pairs_all(self):
-        res = []
+        res:list[Pair] = []
         for ps in self.dps.values():
             for p in ps:
                 [ res.append(pr) for chain in p.chains() for pr in chain]
@@ -218,6 +237,24 @@ class Assemblr():
         flatten:list[int] = [csid for pr in leasts for csid in pr]
         return Counter(flatten)
 
+    # only master can name slave
+    def elect_named(self):
+        all_pairs = self.pairs_all()
+
+        for id,name in self.named_cs.items():
+            candi = []
+            for mid,sid in all_pairs:
+                if sid is not None:
+                    if mid == id:
+                        candi.append(sid)
+        
+            for sid in candi:
+                cs_ent = base.GetEntity(self.deck,Entities.COORD,sid)
+                icl = base.GetEntityInclude(cs_ent)
+                # icl.card_fields(self.deck,True)
+                base_name = os.path.splitext(icl._name)[0]
+                if base_name == name:
+                    self.elect_pair(id,sid)
 
     def elect_pair(self,csid:int,csid2:int):
         pair = ((csid,csid2),(csid2,csid))
@@ -253,7 +290,7 @@ class Assemblr():
         empty1 = l_m - l_is
         empty2 = l_m + l_im - l_is - l_s
 
-        assert empty2 >= 0 and empty1 >=0, "impossible!"
+        assert empty2 >= 0 and empty1 >=0, "empty1:{},empty2:{}\nasb:{}\nimpossible at depth{}".format(empty1,empty2,self,d)
 
         for _ in range(0,empty1):
             ms.append(None)
@@ -318,6 +355,15 @@ class Assemblr():
         ps = self.dps[d]
         return [chain for p in ps for chain in p.chains()]
 
+    def try_final(self):
+
+        if len(self.chains) != 1:
+            print("assemble has {} possibles".format(len(self.chains)))
+            return
+
+        print('realizing assembly chian:', self.chains[0])
+        self.realize_chain_id(0)
+
     def realize_chain_id(self,idx:int):
         # chain = [par for lyrs in self.chains[idx] for par in lyrs]
         # print(chain)
@@ -326,6 +372,7 @@ class Assemblr():
                 self.realize_pair(par)
     
     def realize_pair(self,pair:Pair):
+        time.sleep(0.2) # FIXME: for show!!  
         mcsid,scsid = pair
         if scsid is None: return
         self.transform_inclu(mcsid,scsid)
@@ -352,7 +399,7 @@ class Assemblr():
 
     def buttn(self):
         
-        bak = base.CollectEntities(self.deck,None,Entities.ALL)
+        bak = base.CollectEntities(self.deck,self.inclus,Entities.ALL)
         
         def pop(action,data):
             model = base.GetCurrentAnsaModel()

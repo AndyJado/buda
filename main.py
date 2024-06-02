@@ -15,15 +15,18 @@ def susp_asb(dir:str):
     asb = plugs.Assemblr(DECK,eves) 
     asb.possi_d_all()
     asb.chains_all()
-    # FIXME: playing index
-    must_have_pairs = [(1,15)]
-    for par in must_have_pairs[0:]:
-        asb.elect_pair(par[0],par[1])
-    assert len(asb.chains) <= 1, "asemble has more than 1 poss!"    
-    print('realizing assembly chian:', asb.chains[0])
 
-    asb.realize_chain_id(0)
-    helpers.write_ents(all,output)
+    asb.elect_named()
+    
+    remain_possi = len(asb.chains)
+    print('remain_possi', remain_possi)
+    # asb.buttn()
+    # assert len(asb.chains) <= 1, "asemble has more than 1 poss!"    
+    # print('realizing assembly chian:', asb.chains[0])
+
+    # asb.realize_chain_id(0)
+    # helpers.write_ents(all,output)
+
 
     return output
 
@@ -31,8 +34,18 @@ if __name__ == "__main__":
     DECK = ansa.constants.LSDYNA
     time = helpers.NewScript(DECK)
     #-----------------------------------
-    truck_dir = 'asset/parts'
-    asb = helpers.assemble_a_dir(DECK,truck_dir) 
-    asb.buttn()
+    truck_dir = 'dirty/truck'
+    rear_susp_dir = 'dirty/susp/after_cs/improve/3lyrs'
+    rear_output = 'dirty/truck/rear-susp.k'
+    # out1 = 'dirty/truck/'
+    rear_asb = helpers.dir_a_asb(DECK,rear_susp_dir)
+    rear_asb.try_final()
+
+    helpers.write_ents_with_ref(rear_asb.inclus,rear_output)
+    base.DeleteEntity(base.CollectEntities(DECK,rear_asb.inclus,literals.Entities.ALL))
+    truck_asb = helpers.dir_a_asb(DECK,truck_dir) 
+    truck_asb.try_final()
+
+    # truck_asb.buttn()
     #-----------------------------------
     time.end() 

@@ -121,17 +121,18 @@ def random_move_ents(to_move:list[base.Entity],scale:int):
 
     base.GeoTranslate('MOVE','AUTO_OFFSET',"SAME PART","NONE",rng(),rng(),rng(),to_move)
 
-def write_ents(ents:list[base.Entity],path:str):
+def write_ents_with_ref(ents:list[base.Entity],path:str):
     base.OutputLSDyna(entities=ents,include_output_mode='references',filename=path)
 
-def assemble_a_dir(deck:int,dir:str):
+def dir_a_asb(deck:int,dir:str):
     dir1 = os.path.join(dir,f'*.key')
-    # output = 'dirty/susp.k'
-    fps = glob.glob(dir1,recursive=True)
+    dir2 = os.path.join(dir,f'*.k')
+    fps = glob.glob(dir1) + glob.glob(dir2)
     inclus = [bubase.dyna_a_include(p) for p in fps]
     # all = base.CollectEntities(deck,None,literals.Entities.ALL)
     eves = [plugs.Eve(deck,i) for i in inclus]
     asb = plugs.Assemblr(deck,eves) 
     asb.possi_d_all()
     asb.chains_all()
+    asb.elect_named()
     return asb
