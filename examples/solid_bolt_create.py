@@ -1,15 +1,15 @@
 from helpers import *
 import ansa
 import buconnect,bumesh
+from time import sleep
 
 DECK = ansa.constants.LSDYNA
 
-
+# if scripts fails, try rerun.
 if __name__ == "__main__":
-    time = NewScript(DECK)
+    timing = NewScript(DECK)
 
     plate = a_plate_mesh(DECK)
-    print(plate.ansa_type(DECK))
 
     nodes_all = set(base.CollectEntities(DECK,None,literals.Meshes.NODE))
 
@@ -21,12 +21,15 @@ if __name__ == "__main__":
 
     d_hole = 30.0
 
-    buconnect.move_along_cs('COPY',cys._id,[20,30,20],[plate])
-    buconnect.move_along_cs('COPY',cys._id,[20,0,10],[plate])
-
+    sleep(0.3)
+    buconnect.copy_along_cs(cys._id,[20,30,20],[plate])
+    sleep(0.3)
+    buconnect.copy_along_cs(cys._id,[20,0,10],[plate])
+    sleep(0.3)
     bumesh.openhole(DECK,ori,d_hole)
-    
+    sleep(0.3)
     bolt = buconnect.BoltBuilder(DECK)
     bolt.solid_bolt(d_hole,30.0)
     bolt.apply()
     
+    timing.end()

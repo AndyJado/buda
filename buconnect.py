@@ -3,17 +3,12 @@ from ansa import connections,base,calc,constants
 from literals import Entities,Meshes,DynaCards,Constrains
 import bubase
 
-class HolesBuilder():
-    def __init__(self) -> None:
-        pass
-
 class BoltBuilder():
-
-    BOLT_CFG: dict=None
 
     # FIXME: must have holes at this point
     def __init__(self,deck:int) -> None:
         self.deck = deck
+        self.BOLT_CFG: dict = None
         globe = base.CollectEntities(deck,None,DynaCards.SHELL)
         self.cnctns:list[base.Entity] = connections.DefineConnectionHoles(
             entities=globe,
