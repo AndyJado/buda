@@ -365,9 +365,11 @@ class Assemblr():
         self.realize_chain_id(0)
 
     def realize_chain_id(self,idx:int):
-        # chain = [par for lyrs in self.chains[idx] for par in lyrs]
-        # print(chain)
+        depth  = 0
         for pars in self.chains[idx]:
+            nog = "At depth {}, assembling coordinate piar {}".format(depth,pars)
+            print(nog)
+            depth += 1
             for par in pars:
                 self.realize_pair(par)
     

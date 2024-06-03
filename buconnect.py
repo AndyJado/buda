@@ -1,3 +1,4 @@
+from typing import Tuple
 from ansa import connections,base,calc,constants
 from literals import Entities,Meshes,DynaCards,Constrains
 import bubase
@@ -113,6 +114,13 @@ def ppt_dependent_ppts(deck:int,ppt:base.Entity):
 
     return bubase.nodes2ppts(deck,nds)
 
+def miror_ents_3_nodes(deck:int,ents:list[base.Entity],ref_nodes:Tuple[int,3]):
+    nd_posis = [pos for i in ref_nodes for pos in base.GetEntity(deck,Meshes.NODE,i).position]
+    nd_posis.reverse()
+    p = lambda: nd_posis.pop()
+    base.GeoMirrorPlane("COPY",0,"SAME PART","EXPAND",p(),p(),p(),p(),p(),p(),p(),p(),p(),ents,True,True)
+
+#FIXME: more or less useless, 
 def get_revolute_joint_rigid_pair(deck:int,jid:int)->tuple[base.Entity,base.Entity]:
     kwd='CONSTRAINED_JOINT_REVOLUTE'
     joint = base.GetEntity(deck,kwd,jid)
