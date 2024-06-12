@@ -8,3 +8,4 @@ if __name__ == "__main__":
     os.system('clear')
     nog = "thx to ansa's vfs, need run this script before run anything in examples"
     print(nog)
+

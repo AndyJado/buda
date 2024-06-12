@@ -177,8 +177,11 @@ class Assemblr():
 
         # {depth : [layer]}
         self.layers: dict[int,MIS] = {}
+        # for election
         self.named_cs: dict[int,str] = {}
+        # suck all eve 
         self.inclus: list[Entity] = []
+        # {depth: [possi]}
         self.dps: dict[int,list[Possi]] ={}
         self.deck = deck
         # possibles[layers[paris]]
@@ -247,13 +250,14 @@ class Assemblr():
                 if sid is not None:
                     if mid == id:
                         candi.append(sid)
-        
+       
             for sid in candi:
                 cs_ent = base.GetEntity(self.deck,Entities.COORD,sid)
                 icl = base.GetEntityInclude(cs_ent)
                 # icl.card_fields(self.deck,True)
                 base_name = os.path.splitext(icl._name)[0]
                 if base_name == name:
+                    print('electing named pairs:{}'.format(base_name))
                     self.elect_pair(id,sid)
 
     def elect_pair(self,csid:int,csid2:int):
@@ -290,7 +294,8 @@ class Assemblr():
         empty1 = l_m - l_is
         empty2 = l_m + l_im - l_is - l_s
 
-        assert empty2 >= 0 and empty1 >=0, "empty1:{},empty2:{}\nasb:{}\nimpossible at depth{}".format(empty1,empty2,self,d)
+        #FIXME
+        assert empty2 >= 0 and empty1 >=0, "ERROR: free slaves are not supported yet!\nIf allows, there would be floating parts in the final asb,maybe after layer inference\nFREE Intermidate:{},FREE Slave:{}\nasb:{}\nimpossible at depth{}".format(empty1,empty2,self,d)
 
         for _ in range(0,empty1):
             ms.append(None)
@@ -301,7 +306,7 @@ class Assemblr():
         is_aranges = set(itertools.permutations(ms))
         s_aranges = set(itertools.permutations(S))
 
-        print('possi at depth {} has:'.format(d), len(is_aranges) , len(s_aranges))
+        print('Assembly depth {} has: {} x {} possibles '.format(d, len(is_aranges) , len(s_aranges)))
 
         pairs1:list[tuple[any,any]] = []
 
@@ -361,8 +366,9 @@ class Assemblr():
             print("assemble has {} possibles".format(len(self.chains)))
             return
 
-        print('realizing assembly chian:', self.chains[0])
+        print('**----1 possible remians, finaling ASSEMBLY----**') 
         self.realize_chain_id(0)
+        print('\nSUCCESS, ASSEMBLE FINISHED \n')
 
     def realize_chain_id(self,idx:int):
         depth  = 0

@@ -2,11 +2,11 @@ $
 $ANSA_VERSION;24.1.1;
 $
 $
-$ file created by  A N S A  Mon Jun  3 13:58:48 2024
+$ file created by  A N S A  Fri Jun  7 12:56:13 2024
 $
 $ output from :
 $
-$ /home/mz/repos/buda/examples/truck_assemble/truck/Untitled
+$ /home/mz/repos/buda/asset/cup/Untitled
 $
 $ Settings :
 $

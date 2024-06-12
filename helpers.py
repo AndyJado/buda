@@ -125,14 +125,17 @@ def write_ents_with_ref(ents:list[base.Entity],path:str):
     base.OutputLSDyna(entities=ents,include_output_mode='references',filename=path)
 
 def dir_a_asb(deck:int,dir:str):
-    dir1 = os.path.join(dir,f'*.key')
-    dir2 = os.path.join(dir,f'*.k')
-    fps = glob.glob(dir1) + glob.glob(dir2)
-    inclus = [bubase.dyna_a_include(p) for p in fps]
-    # all = base.CollectEntities(deck,None,literals.Entities.ALL)
+    inclus = dir_to_inclus(dir)
     eves = [plugs.Eve(deck,i) for i in inclus]
     asb = plugs.Assemblr(deck,eves) 
     asb.possi_d_all()
     asb.chains_all()
     asb.elect_named()
     return asb
+
+def dir_to_inclus(dir:str) -> list[base.Entity]:
+    dir1 = os.path.join(dir,f'*.key')
+    dir2 = os.path.join(dir,f'*.k')
+    fps = glob.glob(dir1) + glob.glob(dir2)
+    return [bubase.dyna_a_include(p) for p in fps]
+
