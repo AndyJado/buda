@@ -23,14 +23,15 @@ if __name__ == "__main__":
 
     buconnect.copy_along_cs(cys._id,[20,30,20],[plate])
     buconnect.copy_along_cs(cys._id,[20,0,10],[plate])
+    buconnect.rotate_along_cs(cys._id,1.6,[0,1,0],[plate])
 
     for i in range(0,2):
         se = bucreate.cre_set(0,nodes_all.pop(),i)
 
     ####FIXME uncomment next 3 line and run, check window would pop
-    # base.OutputLSDyna('temp.k')
-    # NewScript(DECK)
-    # base.InputLSDyna('temp.k')
+    base.OutputLSDyna('temp.k')
+    NewScript(DECK)
+    base.InputLSDyna('temp.k')
 
     for i in range(0,2):
         sets = buentity.get_ents_naming(str(i),literals.Entities.SET,True)
@@ -39,6 +40,6 @@ if __name__ == "__main__":
             base.DeleteEntity(se)
             to_cre = bucreate.cre_set(0,nds)
             h_id = bucreate.cre_hole_from_set(0,to_cre._id,d_hole+random.random()*1e-4,50)
-            bucreate.cre_bolt_auto(DECK,28.0-10*i,30-10*i,'asset/mat24.key',h_id)
+            bucreate.cre_bolt_auto(DECK,28.0-10*i,30+10*i,'asset/mat24.key',h_id)
  
     timing.end()

@@ -15,8 +15,8 @@ class BoltBuilder():
             d_min= 0.0
             d_max = 50.0
         else:
-            d_min = diameter_uuid - 1e-4
-            d_max = diameter_uuid + 1e-4
+            d_min = diameter_uuid - 1e-5
+            d_max = diameter_uuid + 1e-5
 
         globe = base.CollectEntities(deck,None,Entities.PROPERTY) #FIXME: searching holes scope here
         cncts_all:list[base.Entity] = connections.DefineConnectionHoles(
