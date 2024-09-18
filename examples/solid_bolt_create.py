@@ -27,9 +27,10 @@ if __name__ == "__main__":
     for i in range(0,2):
         se = bucreate.cre_set(0,nodes_all.pop(),i)
 
-    base.OutputLSDyna('temp.k')
-    NewScript(DECK)
-    base.InputLSDyna('temp.k')
+    ####FIXME uncomment next 3 line and run, check window would pop
+    # base.OutputLSDyna('temp.k')
+    # NewScript(DECK)
+    # base.InputLSDyna('temp.k')
 
     for i in range(0,2):
         sets = buentity.get_ents_naming(str(i),literals.Entities.SET,True)
